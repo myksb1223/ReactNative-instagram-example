@@ -61,9 +61,9 @@ export default class CreateUserScreen extends React.Component {
     db.transaction(
           tx => {
             tx.executeSql('INSERT INTO users (name, picture) values (?, ?)', [_this.state.text, _this.image.state.image]);
-            tx.executeSql('SELECT * FROM users', [], (_, { rows }) =>
-              alert(JSON.stringify(rows))
-            );
+            // tx.executeSql('SELECT * FROM users', [], (_, { rows }) =>
+            //   alert(JSON.stringify(rows))
+            // );
           },
         );
   }

@@ -31,7 +31,7 @@ export default class CreateScreen extends React.Component {
 
     let updated = this.props.navigation.getParam("data", null);
     // this.image.setState({image: this.props.navigation.getParam("image", null) });
-    alert(JSON.stringify(updated))
+    // alert(JSON.stringify(updated))
     let text = '';
     if(updated !== null) {
       text = updated["content"]

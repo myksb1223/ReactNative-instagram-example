@@ -33,7 +33,7 @@ export default class CameraScreen extends React.Component {
 
   snap = () => {
     if (this.camera) {
-      alert(`${FileSystem.documentDirectory}photos`);
+      // alert(`${FileSystem.documentDirectory}photos`);
       console.log("here!!");
       this.camera.takePictureAsync({onPictureSaved: this.onPictureSaved});
 

@@ -89,7 +89,7 @@ export default class HomeScreen extends React.Component {
     // let newDatas = this.state.datas.splice()
 
     this.state.datas.splice(rowId, 1)
-    alert("datas: " + JSON.stringify(this.state.datas));
+    // alert("datas: " + JSON.stringify(this.state.datas));
     this.setState({
       dataSource: ds.cloneWithRows( this.state.datas ),
     })
