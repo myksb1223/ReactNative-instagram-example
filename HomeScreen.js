@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ListView, Button, ActivityIndicator, Image } from 'react-native';
+import { StyleSheet, Text, View, ListView, Button, ActivityIndicator, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { Constants, SQLite } from 'expo';
 
 const db = SQLite.openDatabase('db.db');
@@ -11,20 +11,24 @@ export default class HomeScreen extends React.Component {
     return {
       title: 'Instagram',
       headerRight: (
-        <View style={{flex: 1, flexDirection: 'row', marginRight: 12}}>
-          <Button
-            onPress={() =>
+        <TouchableOpacity
+          style={{flex: 1, marginRight: 12}}
+          onPress={() => {
               navigation.navigate('Create', { name: 'Jane' })
-            }
-            title="Write"
-          />
-          <Button
-            onPress={() =>
+            }}>
+          <Image style={{width: 30, height: 30}}
+           source={ require('./assets/write.png')}/>
+        </TouchableOpacity>
+      ),
+      headerLeft: (
+        <TouchableOpacity
+          style={{flex: 1, marginLeft: 12}}
+          onPress={() => {
               navigation.navigate('User', { name: 'Jane' })
-            }
-            title="User"
-          />
-        </View>
+            }}>
+          <Image style={{width: 30, height: 30}}
+           source={ require('./assets/user_no_profile.png')}/>
+        </TouchableOpacity>
       ),
     }
   };
@@ -97,35 +101,38 @@ export default class HomeScreen extends React.Component {
 
   render() {
     // alert("datas: " + JSON.stringify(this.state.datas));
+    let {height, width} = Dimensions.get('window');
     return (
       <ListView
         dataSource={this.state.dataSource}
         renderRow={(rowData, sectionID, rowID) =>
           <View style={{flex: 1, flexDirection: 'column', margin: 12}}>
-            <View style={{flex: 1, flexDirection: 'row'}}>
-              <Image source={{ uri: rowData.user_pic }} style={{ width: 36, height: 36 }} />
-              <Text style={{flex: 1}}>{rowData.user_name}</Text>
-              <Button
+            <View style={{flex: 1, flexDirection: 'row', justifyContent: "center",alignItems: "center", marginBottom: 12}}>
+              <Image source={{ uri: rowData.user_pic }}
+                style={{ width: 36, height: 36, borderRadius: 18, marginRight: 12 }} />
+              <Text style={{flex: 1, textAlign: 'left', textAlignVertical: "center", fontSize: 14, fontWeight: "bold"}}>{rowData.user_name}</Text>
+              <TouchableOpacity
+                style={{ marginLeft: 12, marginRight: 12 }}
                 onPress={() => {
                     let data = this.state.datas[rowID]
                     this.props.navigation.navigate('Create', { data: data, image: data["picture"] })
                   }
-                }
-                title="수정"
-              />
-              <Button
+                }>
+                <Text style={{fontSize: 14, textAlign: 'center', textAlignVertical: "center"}}>수정</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
                 onPress={() => {
                     let data = this.state.datas[rowID]
                     // alert(JSON.stringify(data["id"]))
                     this.delete(data["id"])
                     this.deleteRow(rowID)
                   }
-                }
-                title="삭제"
-              />
+                }>
+                <Text style={{fontSize: 14}}>삭제</Text>
+              </TouchableOpacity>
             </View>
-            <Image source={{ uri: rowData.picture, cache: 'force-cache', }} style={{ flex: 1, height: 200 }} />
-            <Text>{rowData.content}</Text>
+            <Image source={{ uri: rowData.picture, cache: 'force-cache', }} style={{ flex: 1, height: width-24, marginBottom: 12 }} />
+            <Text style={{fontSize: 14}}>{rowData.content}</Text>
           </View>
         }
         enableEmptySections

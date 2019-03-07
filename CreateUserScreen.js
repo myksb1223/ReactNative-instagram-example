@@ -47,7 +47,7 @@ export default class CreateUserScreen extends React.Component {
     }
     // TODO perform changes on state change
     // this.setState({image: nextProps.navigation.getParam('image', null)});
-    this.image.setState({image: nextProps.navigation.getParam('image', null)});
+    this.image.setState({image: nextProps.navigation.getParam('image', "file://")});
     // alert("componentWillReceiveProps: " + JSON.stringify(nextProps) + ", camera : " + JSON.stringify(this.image));
     // this.setState({image: nextProps.navigation.getParam('image', null)});
   }
@@ -61,9 +61,9 @@ export default class CreateUserScreen extends React.Component {
     db.transaction(
           tx => {
             tx.executeSql('INSERT INTO users (name, picture) values (?, ?)', [_this.state.text, _this.image.state.image]);
-            // tx.executeSql('SELECT * FROM users', [], (_, { rows }) =>
-            //   alert(JSON.stringify(rows))
-            // );
+            tx.executeSql('SELECT * FROM users', [], (_, { rows }) =>
+              alert(JSON.stringify(rows))
+            );
           },
         );
   }

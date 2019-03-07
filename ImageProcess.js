@@ -8,7 +8,7 @@ export default class ImageProcess extends React.Component {
     super(props);
     // alert(JSON.stringify(this.props))
     // this.checkPermisson();
-    this.state = {status: false, image: null};
+    this.state = {status: false, image: "file://"};
 
     // this.props.onGetImage();
   }

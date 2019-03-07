@@ -45,6 +45,7 @@ export default class CreateScreen extends React.Component {
   }
 
   componentWillMount() {
+
     db.transaction(
       tx => {
         tx.executeSql('SELECT * FROM users', [], (_, { rows: { _array } }) => {
@@ -81,7 +82,7 @@ export default class CreateScreen extends React.Component {
     // TODO perform changes on state change
     // this.camera = nextProps.navigation.getParam('image', null);
     if(this.image) {
-      this.image.setState({image: nextProps.navigation.getParam('image', null)});
+      this.image.setState({image: nextProps.navigation.getParam('image', "file://")});
     }
   }
 
