@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ListView, Button, ActivityIndicator, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, ListView, Button, ActivityIndicator, Image, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import { Constants, SQLite } from 'expo';
 
 const db = SQLite.openDatabase('db.db');
@@ -66,6 +66,12 @@ export default class HomeScreen extends React.Component {
         tx.executeSql('SELECT * FROM contents', [], (_, { rows: { _array } }) => {
           // setTimeout(() =>  {
           // const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+          for(var i in _array) {
+            if(_array[i]["picture"] === null) {
+              _array[i]["picture"] = "https://www.instagram.com/p/BkxfIN4jpeO/media/?size=m";
+              break
+            }
+          }
             this.setState({ dataSource: this.state.dataSource.cloneWithRows(_array), datas: _array})
             // alert("datas: " + JSON.stringify(this.state.datas));
             // alert(JSON.stringify(_array))
@@ -131,7 +137,16 @@ export default class HomeScreen extends React.Component {
                 <Text style={{fontSize: 14}}>삭제</Text>
               </TouchableOpacity>
             </View>
-            <Image source={{ uri: rowData.picture, cache: 'force-cache', }} style={{ flex: 1, height: width-24, marginBottom: 12 }} />
+            <ScrollView
+              style={{ flex: 1, marginBottom: 12}}
+              horizontal={true}
+              pagingEnabled={true}
+              showsHorizontalScrollIndicator={true}
+
+              >
+                <Image source={{ uri: rowData.picture, cache: 'force-cache', }} style={{ flex: 1, width:  width-24, height: width-24}} />
+                <Image source={{ uri: "https://www.instagram.com/p/BlGcOrlDr5W/media/?size=m", cache: 'force-cache', }} style={{ flex: 1, width:  width-24, height: width-24}} />
+            </ScrollView>
             <Text style={{fontSize: 14}}>{rowData.content}</Text>
           </View>
         }

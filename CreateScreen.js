@@ -50,11 +50,11 @@ export default class CreateScreen extends React.Component {
       tx => {
         tx.executeSql('SELECT * FROM users', [], (_, { rows: { _array } }) => {
           // setTimeout(() =>  {
-            let user = _array[0]
+            let user = _array[0]["id"]
             if(this.state.updated !== null) {
               for(var i in _array) {
                 if(this.state.updated["user_id"] === _array[i]["id"]) {
-                  user = _array[i]
+                  user = _array[i]["id"]
                   break
                 }
               }
@@ -87,11 +87,20 @@ export default class CreateScreen extends React.Component {
   }
 
   add() {
+    let picture = null;
+    let name = null;
+    for(var i in _this.state.users) {
+      if(_this.state.user === _this.state.users[i]["id"]) {
+        picture = _this.state.users[i]["picture"];
+        name = _this.state.users[i]["name"];
+      }
+    }
+
     if(_this.state.updated !== null) {
       db.transaction(
         tx => {
           // alert(JSON.stringify(_this.state) + JSON.stringify(_this.image.state))
-          tx.executeSql('UPDATE contents SET content = ?, picture = ?, user_id = ?, user_name = ?, user_pic = ? WHERE id = ?', [_this.state.text, _this.image.state.image, _this.state.user.id, _this.state.user.name, _this.state.user.picture, _this.state.updated["id"]]);
+          tx.executeSql('UPDATE contents SET content = ?, picture = ?, user_id = ?, user_name = ?, user_pic = ? WHERE id = ?', [_this.state.text, _this.image.state.image, _this.state.user.id, name, picture, _this.state.updated["id"]]);
           // tx.executeSql('SELECT * FROM contents', [], (_, { rows }) =>
           //   alert(JSON.stringify(rows))
           // );
@@ -104,7 +113,7 @@ export default class CreateScreen extends React.Component {
       db.transaction(
         tx => {
           // alert(JSON.stringify(_this.state) + JSON.stringify(_this.image.state))
-          tx.executeSql('INSERT INTO contents (content, picture, user_id, user_name, user_pic) values (?, ?, ?, ?, ?)', [_this.state.text, _this.image.state.image, _this.state.user.id, _this.state.user.name, _this.state.user.picture]);
+          tx.executeSql('INSERT INTO contents (content, picture, user_id, user_name, user_pic) values (?, ?, ?, ?, ?)', [_this.state.text, _this.image.state.image, _this.state.user.id, name, picture]);
           // tx.executeSql('SELECT * FROM contents', [], (_, { rows }) =>
           //   alert(JSON.stringify(rows))
           // );
@@ -139,10 +148,12 @@ export default class CreateScreen extends React.Component {
       <View style={styles.container}>
       <Picker
          selectedValue={this.state.user}
-         style={{ height: 50, width: 100 }}
-         onValueChange={(itemValue, itemIndex) => this.setState({user: itemValue})}>
+         onValueChange={(itemValue, itemIndex) => {
+           this.setState({user: itemValue})
+           Alert.alert(JSON.stringify(this.state.user));
+         }}>
          { this.state.users.map((item, key)=>(
-            <Picker.Item label={item.name} value={item} key={key} />)
+            <Picker.Item label={item.name} value={item.id} key={key} />)
             )}
 
        </Picker>
@@ -172,6 +183,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    flexDirection: 'column'
     // alignItems: 'center',
     // justifyContent: 'center',
   },
