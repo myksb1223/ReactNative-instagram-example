@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ListView, Button, ActivityIndicator, Image, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ListView, Button, ActivityIndicator, Image, TouchableOpacity, Dimensions, ScrollView, ActionSheetIOS, Platform, Alert } from 'react-native';
 import { Constants, SQLite } from 'expo';
 
 const db = SQLite.openDatabase('db.db');
@@ -33,8 +33,13 @@ export default class HomeScreen extends React.Component {
     }
   };
 
+  getDeivceType=()=> {
+    return Platform.OS === "ios" ? true : false;
+  };
+
   constructor() {
     super();
+
 
     this.state = {
       dataSource: ds.cloneWithRows([]),
@@ -85,6 +90,17 @@ export default class HomeScreen extends React.Component {
     );
   }
 
+  goToEdit(rowID) {
+    let data = this.state.datas[rowID]
+    this.props.navigation.navigate('Create', { data: data, image: data["picture"] })
+  }
+
+  goToDelete(rowID) {
+    let data = this.state.datas[rowID]
+    this.delete(data["id"])
+    this.deleteRow(rowID)
+  }
+
   delete(contentId) {
     db.transaction(
       tx => {
@@ -118,23 +134,40 @@ export default class HomeScreen extends React.Component {
                 style={{ width: 36, height: 36, borderRadius: 18, marginRight: 12 }} />
               <Text style={{flex: 1, textAlign: 'left', textAlignVertical: "center", fontSize: 14, fontWeight: "bold"}}>{rowData.user_name}</Text>
               <TouchableOpacity
-                style={{ marginLeft: 12, marginRight: 12 }}
                 onPress={() => {
-                    let data = this.state.datas[rowID]
-                    this.props.navigation.navigate('Create', { data: data, image: data["picture"] })
+                  if(this.getDeivceType()) {
+                    ActionSheetIOS.showActionSheetWithOptions({
+                      options: ['취소', '수정', '삭제'],
+                      cancelButtonIndex: 0,
+                    },
+                    (buttonIndex) => {
+                      if (buttonIndex === 1) {
+                        this.goToEdit(rowID)
+                      }
+                      else if(buttonIndex === 2) {
+                        this.goToDelete(rowID)
+                      }
+                    });
+                  }
+                  else {
+
+                    Alert.alert(
+                      null,
+                      'Select menu',
+                      [
+                        {text: '취소', onPress: () => {}},
+                        {text: '수정', onPress: () => this.goToEdit(rowID)},
+                        {text: '삭제', onPress: () => this.goToDelete(rowID)},
+                      ],
+                      { cancelable: true }
+                    )
+                  }
+
                   }
                 }>
-                <Text style={{fontSize: 14, textAlign: 'center', textAlignVertical: "center"}}>수정</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                    let data = this.state.datas[rowID]
-                    // alert(JSON.stringify(data["id"]))
-                    this.delete(data["id"])
-                    this.deleteRow(rowID)
-                  }
-                }>
-                <Text style={{fontSize: 14}}>삭제</Text>
+                <Image style={{width: 36, height: 36}}
+                resizeMode='center'
+                 source={ require('./assets/more.png')}/>
               </TouchableOpacity>
             </View>
             <ScrollView
