@@ -1,7 +1,13 @@
 import React from 'react';
-import { View, Button, Image, Alert } from 'react-native';
+import { View, Button, Image, Alert, ActionSheetIOS, Platform } from 'react-native';
 import { ImagePicker, Permissions, Camera } from 'expo';
 import CameraScreen from './CameraScreen';
+import * as KSBAlert from './KSBAlert';
+
+export {
+   KSBAlert
+};
+
 
 export default class ImageProcess extends React.Component {
   constructor(props) {
@@ -12,6 +18,10 @@ export default class ImageProcess extends React.Component {
 
     // this.props.onGetImage();
   }
+
+  // getDeivceType=()=> {
+  //   return Platform.OS === "ios" ? true : false;
+  // };
 
   getPermissionStatus(type, p_type) {
     const { Permissions } = Expo;
@@ -99,17 +109,35 @@ export default class ImageProcess extends React.Component {
     }
   }
 
-  showAlert() {
-    Alert.alert(
-      null,
-      'Select menu',
-      [
-        {text: 'Camera', onPress: () => this.checkPermisson(0)},
-        {text: 'Gallery', onPress: () => this.checkPermisson(1)},
-      ],
-      { cancelable: true }
-    )
-  }
+  // showAlert() {
+    //
+    // if(this.getDeivceType()) {
+    //   ActionSheetIOS.showActionSheetWithOptions({
+    //     options: ['취소', 'Camera', 'Gallery'],
+    //     cancelButtonIndex: 0,
+    //   },
+    //   (buttonIndex) => {
+    //     if (buttonIndex === 1) {
+    //       this.checkPermisson(0)
+    //     }
+    //     else if(buttonIndex === 2) {
+    //       this.checkPermisson(1)
+    //     }
+    //   });
+    // }
+    // else {
+    //   Alert.alert(
+    //     null,
+    //     'Select menu',
+    //     [
+    //       {text: '취소', onPress: () => {}},
+    //       {text: 'Camera', onPress: () => this.checkPermisson(0)},
+    //       {text: 'Gallery', onPress: () => this.checkPermisson(1)},
+    //     ],
+    //     { cancelable: true }
+    //   )
+    // }
+  // }
 
   render() {
     // alert(JSON.stringify(this.state))
@@ -118,7 +146,11 @@ export default class ImageProcess extends React.Component {
       <Button
         title= "Select image"
         onPress={() => {
-            this.showAlert();
+            KSBAlert.showAlert({
+              caller: this,
+              menus: ['취소', 'Camera', 'Gallery'],
+              type: 0
+            });
           }
         }
       />

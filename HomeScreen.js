@@ -1,6 +1,11 @@
 import React from 'react';
 import { StyleSheet, Text, View, ListView, Button, ActivityIndicator, Image, TouchableOpacity, Dimensions, ScrollView, ActionSheetIOS, Platform, Alert } from 'react-native';
 import { Constants, SQLite } from 'expo';
+import * as KSBAlert from './KSBAlert';
+
+export {
+   KSBAlert
+};
 
 const db = SQLite.openDatabase('db.db');
 
@@ -135,33 +140,40 @@ export default class HomeScreen extends React.Component {
               <Text style={{flex: 1, textAlign: 'left', textAlignVertical: "center", fontSize: 14, fontWeight: "bold"}}>{rowData.user_name}</Text>
               <TouchableOpacity
                 onPress={() => {
-                  if(this.getDeivceType()) {
-                    ActionSheetIOS.showActionSheetWithOptions({
-                      options: ['취소', '수정', '삭제'],
-                      cancelButtonIndex: 0,
-                    },
-                    (buttonIndex) => {
-                      if (buttonIndex === 1) {
-                        this.goToEdit(rowID)
-                      }
-                      else if(buttonIndex === 2) {
-                        this.goToDelete(rowID)
-                      }
-                    });
-                  }
-                  else {
+                  KSBAlert.showAlert({
+                    caller: this,
+                    menus: ['취소', '수정', '삭제'],
+                    type: 1,
+                    other: rowID
+                  })
 
-                    Alert.alert(
-                      null,
-                      'Select menu',
-                      [
-                        {text: '취소', onPress: () => {}},
-                        {text: '수정', onPress: () => this.goToEdit(rowID)},
-                        {text: '삭제', onPress: () => this.goToDelete(rowID)},
-                      ],
-                      { cancelable: true }
-                    )
-                  }
+                  // if(this.getDeivceType()) {
+                  //   ActionSheetIOS.showActionSheetWithOptions({
+                  //     options: ['취소', '수정', '삭제'],
+                  //     cancelButtonIndex: 0,
+                  //   },
+                  //   (buttonIndex) => {
+                  //     if (buttonIndex === 1) {
+                  //       this.goToEdit(rowID)
+                  //     }
+                  //     else if(buttonIndex === 2) {
+                  //       this.goToDelete(rowID)
+                  //     }
+                  //   });
+                  // }
+                  // else {
+                  //
+                  //   Alert.alert(
+                  //     null,
+                  //     'Select menu',
+                  //     [
+                  //       {text: '취소', onPress: () => {}},
+                  //       {text: '수정', onPress: () => this.goToEdit(rowID)},
+                  //       {text: '삭제', onPress: () => this.goToDelete(rowID)},
+                  //     ],
+                  //     { cancelable: true }
+                  //   )
+                  // }
 
                   }
                 }>
