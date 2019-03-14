@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View, ListView, Button, ActivityIndicator, Image, TouchableOpacity, Dimensions, ScrollView, ActionSheetIOS, Platform, Alert } from 'react-native';
+import { StyleSheet, Text, View, ListView, Button, ActivityIndicator, Image, TouchableOpacity, ScrollView, ActionSheetIOS, Platform, Alert } from 'react-native';
 import { Constants, SQLite } from 'expo';
 import * as KSBAlert from './KSBAlert';
+import ContentRow from './ContentRow';
 
 export {
    KSBAlert
@@ -15,6 +16,7 @@ export default class HomeScreen extends React.Component {
   static navigationOptions = ({navigation}) => {
     return {
       title: 'Instagram',
+      headerTitleStyle: {textAlign:'center', alignSelf:'center',flex:1},
       headerRight: (
         <TouchableOpacity
           style={{flex: 1, marginRight: 12}}
@@ -32,9 +34,14 @@ export default class HomeScreen extends React.Component {
               navigation.navigate('User', { name: 'Jane' })
             }}>
           <Image style={{width: 30, height: 30}}
-           source={ require('./assets/user_no_profile.png')}/>
+           source={ require('./assets/user_create.png')}/>
         </TouchableOpacity>
       ),
+      tabBarIcon: ({ focused, tintColor }) => {
+       // You can return any component that you like here!
+       // We usually create an icon component rendering some svg
+       return <Icon type={routeName} focused={focused} />;
+    }
     }
   };
 
@@ -128,72 +135,14 @@ export default class HomeScreen extends React.Component {
 
   render() {
     // alert("datas: " + JSON.stringify(this.state.datas));
-    let {height, width} = Dimensions.get('window');
     return (
       <ListView
         dataSource={this.state.dataSource}
         renderRow={(rowData, sectionID, rowID) =>
-          <View style={{flex: 1, flexDirection: 'column', margin: 12}}>
-            <View style={{flex: 1, flexDirection: 'row', justifyContent: "center",alignItems: "center", marginBottom: 12}}>
-              <Image source={{ uri: rowData.user_pic }}
-                style={{ width: 36, height: 36, borderRadius: 18, marginRight: 12 }} />
-              <Text style={{flex: 1, textAlign: 'left', textAlignVertical: "center", fontSize: 14, fontWeight: "bold"}}>{rowData.user_name}</Text>
-              <TouchableOpacity
-                onPress={() => {
-                  KSBAlert.showAlert({
-                    caller: this,
-                    menus: ['취소', '수정', '삭제'],
-                    type: 1,
-                    other: rowID
-                  })
-
-                  // if(this.getDeivceType()) {
-                  //   ActionSheetIOS.showActionSheetWithOptions({
-                  //     options: ['취소', '수정', '삭제'],
-                  //     cancelButtonIndex: 0,
-                  //   },
-                  //   (buttonIndex) => {
-                  //     if (buttonIndex === 1) {
-                  //       this.goToEdit(rowID)
-                  //     }
-                  //     else if(buttonIndex === 2) {
-                  //       this.goToDelete(rowID)
-                  //     }
-                  //   });
-                  // }
-                  // else {
-                  //
-                  //   Alert.alert(
-                  //     null,
-                  //     'Select menu',
-                  //     [
-                  //       {text: '취소', onPress: () => {}},
-                  //       {text: '수정', onPress: () => this.goToEdit(rowID)},
-                  //       {text: '삭제', onPress: () => this.goToDelete(rowID)},
-                  //     ],
-                  //     { cancelable: true }
-                  //   )
-                  // }
-
-                  }
-                }>
-                <Image style={{width: 36, height: 36}}
-                resizeMode='center'
-                 source={ require('./assets/more.png')}/>
-              </TouchableOpacity>
-            </View>
-            <ScrollView
-              style={{ flex: 1, marginBottom: 12}}
-              horizontal={true}
-              pagingEnabled={true}
-              showsHorizontalScrollIndicator={true}
-
-              >
-                <Image source={{ uri: rowData.picture, cache: 'force-cache', }} style={{ flex: 1, width:  width-24, height: width-24}} />
-                <Image source={{ uri: "https://www.instagram.com/p/BlGcOrlDr5W/media/?size=m", cache: 'force-cache', }} style={{ flex: 1, width:  width-24, height: width-24}} />
-            </ScrollView>
-            <Text style={{fontSize: 14}}>{rowData.content}</Text>
-          </View>
+          <ContentRow
+            rowData= {rowData}
+            sectionID= {sectionID}
+            rowID= {rowID} />
         }
         enableEmptySections
       />
