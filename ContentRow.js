@@ -1,6 +1,11 @@
 import React from 'react';
 import { View, TouchableOpacity, Image, ScrollView, Text, Dimensions } from 'react-native';
 import { Asset, ImageManipulator } from 'expo';
+import * as KSBAlert from './KSBAlert';
+
+export {
+   KSBAlert
+};
 
 export default class ContentRow extends React.Component {
   constructor(props) {
@@ -45,7 +50,12 @@ export default class ContentRow extends React.Component {
           <Text style={{flex: 1, textAlign: 'left', textAlignVertical: "center", fontSize: 14, fontWeight: "bold"}}>{this.props.rowData.user_name}</Text>
           <TouchableOpacity
             onPress={() => {
-
+              KSBAlert.showAlert({
+                caller: this.props.caller,
+                menus: ['취소', '수정', '삭제'],
+                type: 1,
+                other: this.props.rowID
+                })
               }
             }>
             <Image style={{width: 25, height: 25}}

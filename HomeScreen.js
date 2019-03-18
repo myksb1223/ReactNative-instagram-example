@@ -1,12 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, ListView, Button, ActivityIndicator, Image, TouchableOpacity, ScrollView, ActionSheetIOS, Platform, Alert } from 'react-native';
 import { Constants, SQLite } from 'expo';
-import * as KSBAlert from './KSBAlert';
 import ContentRow from './ContentRow';
-
-export {
-   KSBAlert
-};
 
 const db = SQLite.openDatabase('db.db');
 
@@ -140,6 +135,7 @@ export default class HomeScreen extends React.Component {
         dataSource={this.state.dataSource}
         renderRow={(rowData, sectionID, rowID) =>
           <ContentRow
+            caller= {this}
             rowData= {rowData}
             sectionID= {sectionID}
             rowID= {rowID} />
