@@ -32,11 +32,6 @@ export default class HomeScreen extends React.Component {
            source={ require('./assets/user_create.png')}/>
         </TouchableOpacity>
       ),
-      tabBarIcon: ({ focused, tintColor }) => {
-       // You can return any component that you like here!
-       // We usually create an icon component rendering some svg
-       return <Icon type={routeName} focused={focused} />;
-    }
     }
   };
 
@@ -59,13 +54,14 @@ export default class HomeScreen extends React.Component {
   }
 
   componentWillReceiveProps(nextProps){
-    alert("componentWillReceiveProps: " + JSON.stringify(nextProps));
 
     if(this.props === nextProps){
       return;
     }
 
+    // alert("componentWillReceiveProps: " + JSON.stringify(nextProps));
     this.read();
+
     // TODO perform changes on state change
     // this.camera = nextProps.navigation.getParam('image', null);
     // this.image.setState({image: nextProps.navigation.getParam('image', null)});
@@ -129,7 +125,7 @@ export default class HomeScreen extends React.Component {
   }
 
   render() {
-    // alert("datas: " + JSON.stringify(this.state.datas));
+    // alert("datas: " + JSON.stringify(global.selectedPath));
     return (
       <ListView
         dataSource={this.state.dataSource}

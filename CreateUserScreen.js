@@ -34,6 +34,7 @@ export default class CreateUserScreen extends React.Component {
     this.props.navigation.setParams({
       done: this.add,
     });
+
   }
 
   componentDidMount() {
@@ -58,9 +59,14 @@ export default class CreateUserScreen extends React.Component {
 // }
 
   add() {
+    let current = 0;
+    if(global.selectedPath !== null) {
+      current = 1;
+    }
+    
     db.transaction(
           tx => {
-            tx.executeSql('INSERT INTO users (name, picture, current) values (?, ?, ?)', [_this.state.text, _this.image.state.image, 1]);
+            tx.executeSql('INSERT INTO users (name, picture, current) values (?, ?, ?)', [_this.state.text, _this.image.state.image, current]);
             tx.executeSql('SELECT * FROM users', [], (_, { rows }) =>
               alert(JSON.stringify(rows))
             );

@@ -8,7 +8,8 @@ import CameraScreen from './CameraScreen';
 import HomeScreen from './HomeScreen';
 import ProfileScreen from './ProfileScreen';
 
-let selectedPath = null;
+// let selectedPath = null;
+global.selectedPath = null;
 
 const db = SQLite.openDatabase('db.db');
 
@@ -106,14 +107,14 @@ const DashboardTabRoutes = createBottomTabNavigator({
           // You can check the implementation below.
           // IconComponent = HomeIconWithBadge;
         } else if (routeName === 'Profile') {
-          if(selectedPath === null) {
+          if(global.selectedPath === null) {
             iconName = focused ? require('./assets/profile_focused.png') : require('./assets/profile.png');
 
           // iconName = `./assets/profile${focused ? '_focused' : ''}.png`;
             return <Image source={ iconName } style={{width: 25, height: 25}}/>;
           }
           else {
-            return <Image source={{ uri: selectedPath }} style={{width: 25, height: 25}}/>;
+            return <Image source={{ uri: global.selectedPath }} style={{width: 25, height: 25}}/>;
           }
         }
 
@@ -145,13 +146,14 @@ export default class App extends React.Component {
           // setTimeout(() =>  {
             for(var i in _array) {
               if(1 === _array[i]["current"]) {
-                selectedPath = _array[i]["picture"]
+                global.selectedPath = _array[i]["picture"]
                 break
               }
             }
 
-            alert(JSON.stringify(selectedPath))
-            this.setState({ selectedPath: selectedPath })
+            // global.selectedPath = selectedPath;
+            // alert(JSON.stringify(selectedPath))
+            this.setState({ selectedPath: global.selectedPath })
 
 
           // }, 3000)}
