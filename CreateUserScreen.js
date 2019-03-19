@@ -18,7 +18,7 @@ export default class CreateUserScreen extends React.Component {
         <Button
           onPress={() => {
             params.done();
-            navigation.navigate('Home');
+            navigation.navigate('Home', {added: 1})
           }}
           title="Done"
         />
@@ -60,16 +60,17 @@ export default class CreateUserScreen extends React.Component {
 
   add() {
     let current = 0;
-    if(global.selectedPath !== null) {
+    if(global.selectedPath === null) {
       current = 1;
+      global.selectedPath = _this.image.state.image
     }
-    
+
     db.transaction(
           tx => {
             tx.executeSql('INSERT INTO users (name, picture, current) values (?, ?, ?)', [_this.state.text, _this.image.state.image, current]);
-            tx.executeSql('SELECT * FROM users', [], (_, { rows }) =>
-              alert(JSON.stringify(rows))
-            );
+            // tx.executeSql('SELECT * FROM users', [], (_, { rows }) =>
+            //   alert(JSON.stringify(rows))
+            // );
           },
         );
   }

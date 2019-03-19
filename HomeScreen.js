@@ -59,9 +59,10 @@ export default class HomeScreen extends React.Component {
       return;
     }
 
-    // alert("componentWillReceiveProps: " + JSON.stringify(nextProps));
     this.read();
 
+    global.container.setState({selectedPath: global.selectedPath})
+    // alert("componentWillReceiveProps: " + JSON.stringify(global.container.state));
     // TODO perform changes on state change
     // this.camera = nextProps.navigation.getParam('image', null);
     // this.image.setState({image: nextProps.navigation.getParam('image', null)});

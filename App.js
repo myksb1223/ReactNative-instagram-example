@@ -10,6 +10,7 @@ import ProfileScreen from './ProfileScreen';
 
 // let selectedPath = null;
 global.selectedPath = null;
+global.container = null;
 
 const db = SQLite.openDatabase('db.db');
 
@@ -122,19 +123,33 @@ const DashboardTabRoutes = createBottomTabNavigator({
 
       },
     }),
+    // lazy: true,
     tabBarOptions: {
       showLabel: false,
       activeTintColor: 'tomato',
       inactiveTintColor: 'gray',
     },
   });
-
+// alert("componentWillReceiveProps: " + JSON.stringify(DashboardTabRoutes));
 const Container = createAppContainer(DashboardTabRoutes);
 
 export default class App extends React.Component {
+  constructor() {
+    super();
+
+
+    this.state = {
+      selectedPath: null,
+    };
+
+    global.container = this;
+  }
 
   componentDidMount() {
+        // alert("componentWillReceiveProps: " + JSON.stringify(this.props));
       db.transaction(tx => {
+        // tx.executeSql('DROP TABLE users;');
+        // tx.executeSql('DROP TABLE contents;');
         tx.executeSql(
           'CREATE TABLE IF NOT EXISTS contents (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT, picture TEXT, user_id INTEGER, user_name TEXT, user_pic TEXT);'
         );
@@ -163,7 +178,13 @@ export default class App extends React.Component {
       });
     }
 
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   // alert("here : " + JSON.stringify(nextState))
+  //   return true;
+  // }
+
   render() {
+    // alert("path : " + JSON.stringify(global.selectedPath))
     return (
       <Container />
     );
