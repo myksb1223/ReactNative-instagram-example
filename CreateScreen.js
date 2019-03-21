@@ -102,7 +102,7 @@ export default class CreateScreen extends React.Component {
       db.transaction(
         tx => {
           // alert(JSON.stringify(_this.state) + JSON.stringify(_this.image.state))
-          tx.executeSql('UPDATE contents SET content = ?, picture = ?, user_id = ?, user_name = ?, user_pic = ? WHERE id = ?', [_this.state.text, _this.image.state.image, _this.state.user.id, name, picture, _this.state.updated["id"]]);
+          tx.executeSql('UPDATE contents SET content = ?, picture = ?, user_id = ?, user_name = ?, user_pic = ? WHERE id = ?', [_this.state.text, _this.image.state.image, _this.state.user, name, picture, _this.state.updated["id"]]);
           // tx.executeSql('SELECT * FROM contents', [], (_, { rows }) =>
           //   alert(JSON.stringify(rows))
           // );
@@ -115,7 +115,7 @@ export default class CreateScreen extends React.Component {
       db.transaction(
         tx => {
           // alert(JSON.stringify(_this.state) + JSON.stringify(_this.image.state))
-          tx.executeSql('INSERT INTO contents (content, picture, user_id, user_name, user_pic) values (?, ?, ?, ?, ?)', [_this.state.text, _this.image.state.image, _this.state.user.id, name, picture]);
+          tx.executeSql('INSERT INTO contents (content, picture, user_id, user_name, user_pic) values (?, ?, ?, ?, ?)', [_this.state.text, _this.image.state.image, _this.state.user, name, picture]);
           // tx.executeSql('SELECT * FROM contents', [], (_, { rows }) =>
           //   alert(JSON.stringify(rows))
           // );
