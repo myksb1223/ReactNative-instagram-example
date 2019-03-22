@@ -11,6 +11,10 @@ import ProfileScreen from './ProfileScreen';
 // let selectedPath = null;
 global.currentUser = null;
 global.container = null;
+global.contents = new Array();
+global.contents["map"] = null;
+global.contents["list"] = null;
+global.allUsers = null;
 
 const db = SQLite.openDatabase('db.db');
 
@@ -166,6 +170,7 @@ export default class App extends React.Component {
               }
             }
 
+            global.allUsers = _array
             // global.selectedPath = selectedPath;
             // alert(JSON.stringify(selectedPath))
             this.setState({ selectedPath: global.currentUser["picture"] })

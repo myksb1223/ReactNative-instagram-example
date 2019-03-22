@@ -29,7 +29,7 @@ export default class CreateUserScreen extends React.Component {
   constructor(props) {
     super(props);
     // this.checkPermisson();
-    this.state = {text: ''};
+    this.state = {text: '', height: 0, info: ''};
     _this = this;
     this.props.navigation.setParams({
       done: this.add,
@@ -65,9 +65,11 @@ export default class CreateUserScreen extends React.Component {
       global.selectedPath = _this.image.state.image
     }
 
+    // alert("info : " + JSON.stringify(_this.state.info))
+
     db.transaction(
           tx => {
-            tx.executeSql('INSERT INTO users (name, picture, current) values (?, ?, ?)', [_this.state.text, _this.image.state.image, current]);
+            tx.executeSql('INSERT INTO users (name, info, picture, current) values (?, ?, ?, ?)', [_this.state.text, _this.state.info, _this.image.state.image, current]);
             // tx.executeSql('SELECT * FROM users', [], (_, { rows }) =>
             //   alert(JSON.stringify(rows))
             // );
@@ -90,6 +92,16 @@ export default class CreateUserScreen extends React.Component {
               onChangeText={(text) => this.setState({text: text})}
               value={this.state.text}
           />
+          <TextInput
+                style={{alignSelf: 'stretch', height: Math.max(35, this.state.height), margin: 12}}
+                placeholder="Input content"
+                multiline={true}
+                onChangeText={(info) => this.setState({info})}
+                value={this.state.info}
+                onContentSizeChange={(event) => {
+                            this.setState({ height: Math.min(150, event.nativeEvent.contentSize.height) })
+                        }}
+            />
         <ImageProcess
           ref={image => {
             this.image = image;

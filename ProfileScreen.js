@@ -71,6 +71,76 @@ export class ProfieTopLayout extends React.Component {
 export class ProfileLayout extends React.Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      type: 0,
+    };
+  }
+
+  renderIcon(type) {
+    if(this.state.type === 0) {
+      if(this.state.type === type) {
+        return (
+          <Image style={{width: 25, height: 25}}
+           source={ require('./assets/grid_focused.png')}/>
+        );
+      }
+
+      if(type === 1) {
+        return (
+          <Image style={{width: 25, height: 25}}
+           source={ require('./assets/list.png')}/>
+        );
+      }
+      else if(type === 2) {
+        return (
+          <Image style={{width: 25, height: 25}}
+           source={ require('./assets/folder.png')}/>
+        )
+      }
+    }
+    else if(this.state.type === 1) {
+      if(this.state.type === type) {
+        return (
+          <Image style={{width: 25, height: 25}}
+           source={ require('./assets/list_focused.png')}/>
+        );
+      }
+
+      if(type === 0) {
+        return (
+          <Image style={{width: 25, height: 25}}
+           source={ require('./assets/grid.png')}/>
+        );
+      }
+      else if(type === 2) {
+        return (
+          <Image style={{width: 25, height: 25}}
+           source={ require('./assets/folder.png')}/>
+        );
+      }
+    }
+    else {
+      if(this.state.type === type) {
+        return (
+          <Image style={{width: 25, height: 25}}
+           source={ require('./assets/folder_focused.png')}/>
+        );
+      }
+
+      if(type === 0) {
+        return (
+          <Image style={{width: 25, height: 25}}
+           source={ require('./assets/grid.png')}/>
+        );
+      }
+      else if(type === 1) {
+        return (
+          <Image style={{width: 25, height: 25}}
+           source={ require('./assets/list.png')}/>
+        );
+      }
+    }
   }
 
   render() {
@@ -92,25 +162,26 @@ export class ProfileLayout extends React.Component {
           <TouchableOpacity
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
             onPress={() => {
+              this.props.onSelectType(0);
+              this.setState({type: 0});
               }}>
-              <Image style={{width: 25, height: 25}}
-               source={ require('./assets/grid_focused.png')}/>
+              {this.renderIcon(0)}
           </TouchableOpacity>
           <TouchableOpacity
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
             onPress={() => {
               this.props.onSelectType(1);
+              this.setState({type: 1});
               }}>
-              <Image style={{width: 25, height: 25}}
-               source={ require('./assets/list.png')}/>
+              {this.renderIcon(1)}
           </TouchableOpacity>
           <TouchableOpacity
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
             onPress={() => {
               this.props.onSelectType(2);
+              this.setState({type: 2});
               }}>
-              <Image style={{width: 25, height: 25}}
-               source={ require('./assets/folder.png')}/>
+              {this.renderIcon(2)}
           </TouchableOpacity>
         </View>
       </View>
@@ -127,6 +198,75 @@ export class ProfileRow extends React.Component {
     // };
   }
 
+  renderGridContent(rowData) {
+    let {height, width} = Dimensions.get('window');
+    let cellWidth = width / 3;
+
+    if(rowData.length === 1) {
+      return (
+        <View style={{flex: 1, flexDirection: 'row'}}>
+          <TouchableOpacity
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+            onPress={() => {
+              }}>
+              <Image style={{width: cellWidth, height: cellWidth}}
+               source={{ uri: rowData[0].picture }}/>
+          </TouchableOpacity>
+          <View style={{flex: 1}} />
+          <View style={{flex: 1}} />
+        </View>
+      );
+    }
+    else if(rowData.length === 2) {
+      return (
+        <View style={{flex: 1, flexDirection: 'row'}}>
+          <TouchableOpacity
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+            onPress={() => {
+              }}>
+              <Image style={{width: cellWidth, height: cellWidth}}
+               source={{ uri: rowData[0].picture }}/>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+            onPress={() => {
+              }}>
+              <Image style={{width: cellWidth, height: cellWidth}}
+               source={{ uri: rowData[1].picture }}/>
+          </TouchableOpacity>
+          <View style={{flex: 1}} />
+        </View>
+      );
+    }
+    else {
+      return (
+        <View style={{flex: 1, flexDirection: 'row'}}>
+          <TouchableOpacity
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+            onPress={() => {
+              }}>
+              <Image style={{width: cellWidth, height: cellWidth}}
+               source={{ uri: rowData[0].picture }}/>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+            onPress={() => {
+              }}>
+              <Image style={{width: cellWidth, height: cellWidth}}
+               source={{ uri: rowData[1].picture }}/>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+            onPress={() => {
+              }}>
+              <Image style={{width: cellWidth, height: cellWidth}}
+               source={{ uri: rowData[2].picture }}/>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+  }
+
   render() {
 
     let {height, width} = Dimensions.get('window');
@@ -141,29 +281,7 @@ export class ProfileRow extends React.Component {
       // alert("datas: " + JSON.stringify(this.props.type));
       if(this.props.type === 0) {
         return(
-          <View style={{flex: 1, flexDirection: 'row'}}>
-            <TouchableOpacity
-              style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
-              onPress={() => {
-                }}>
-                <Image style={{width: cellWidth, height: cellWidth}}
-                 source={{ uri: this.props.rowData[0].picture }}/>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
-              onPress={() => {
-                }}>
-                <Image style={{width: cellWidth, height: cellWidth}}
-                 source={{ uri: this.props.rowData[1].picture }}/>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
-              onPress={() => {
-                }}>
-                <Image style={{width: cellWidth, height: cellWidth}}
-                 source={{ uri: this.props.rowData[2].picture }}/>
-            </TouchableOpacity>
-          </View>
+          this.renderGridContent(this.props.rowData)
         );
       }
       else if(this.props.type === 1) {
@@ -185,10 +303,24 @@ export class ProfileRow extends React.Component {
   }
 }
 
+export class ProfileHeaderTitle extends React.Component {
+  render() {
+    return (
+      <TouchableOpacity
+        style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+        onPress={() => {
+          }}>
+          <Text style={{fontWeight: 'bold', fontSize: 16}}>{global.currentUser["name"]} -></Text>
+      </TouchableOpacity>
+    );
+  }
+}
+
 export default class HomeScreen extends React.Component {
   static navigationOptions = ({navigation}) => {
     return {
-      title: global.currentUser["name"],
+      // title: global.currentUser["name"],
+      headerTitle: <ProfileHeaderTitle />,
       headerTitleStyle: {textAlign:'center', alignSelf:'center',flex:1},
       // headerRight: (
       //   <TouchableOpacity
@@ -225,8 +357,6 @@ export default class HomeScreen extends React.Component {
     // map[0]["profile"] = "profile"
     this.state = {
       dataSource: ds.cloneWithRows([""]),
-      datas: null,
-      list_datas: null,
       ready: false,
       type: 0,
     };
@@ -258,7 +388,9 @@ export default class HomeScreen extends React.Component {
 
           map.unshift("")
           _array.unshift("")
-            this.setState({ dataSource: this.state.dataSource.cloneWithRows(map), datas: map, list_datas: _array, ready: true})
+          global.contents["map"] = map;
+          global.contents["list"] = _array;
+            this.setState({ dataSource: this.state.dataSource.cloneWithRows(map), ready: true})
             // alert("datas: " + JSON.stringify(map[1].length));
             // alert(JSON.stringify(_array))
           // }, 3000)}
@@ -273,6 +405,18 @@ export default class HomeScreen extends React.Component {
     // this.setState({ dataSource: this.state.dataSource.cloneWithRows(global.currentUser), datas: null})
   }
 
+  updateType(type) {
+    if(type === 0) {
+      this.setState({type: type, dataSource: ds.cloneWithRows(global.contents["map"])})
+    }
+    else if(type === 1) {
+      this.setState({type: type, dataSource: ds.cloneWithRows(global.contents["list"])})
+    }
+    else {
+      this.setState({type: type, dataSource: ds.cloneWithRows([""])})
+    }
+  }
+
   //리스트 뷰의 renderRow 내에서는 {}를 사용하지 않는다.
   render() {
     alert("datas: " + JSON.stringify(this.state.type));
@@ -285,7 +429,7 @@ export default class HomeScreen extends React.Component {
             sectionID={sectionID}
             rowID={rowID}
             type={this.state.type}
-            onSelectType={(type) => this.setState({type: type, dataSource: ds.cloneWithRows(this.state.list_datas)})} />
+            onSelectType={(type) => this.updateType(type)} />
           }
 
         enableEmptySections
