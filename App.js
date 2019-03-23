@@ -1,12 +1,13 @@
 import React from 'react';
 import { StyleSheet, Text, View, ListView, Button, Image } from 'react-native';
 import { createDrawerNavigator, createBottomTabNavigator, createStackNavigator, createAppContainer } from 'react-navigation';
-import { Constants, SQLite } from 'expo';
+import { Constants, SQLite, Asset } from 'expo';
 import CreateUserScreen from './CreateUserScreen';
 import CreateScreen from './CreateScreen';
 import CameraScreen from './CameraScreen';
 import HomeScreen from './HomeScreen';
 import ProfileScreen from './ProfileScreen';
+import ProfileTabbarIcon from './ProfileTabbarIcon';
 
 // let selectedPath = null;
 global.currentUser = null;
@@ -15,6 +16,9 @@ global.contents = new Array();
 global.contents["map"] = null;
 global.contents["list"] = null;
 global.allUsers = null;
+global.defaultProfileUri = Asset.fromModule(require('./assets/profile.png')).uri;
+global.profileScreen = null;
+global.homeScreen = null;
 
 const db = SQLite.openDatabase('db.db');
 
@@ -62,7 +66,20 @@ Navigator.navigationOptions = ({ navigation }) => {
 
 const ProfileNavigator = createStackNavigator({
   Profile: { screen: ProfileScreen },
+  User: { screen: CreateUserScreen },
 });
+
+ProfileNavigator.navigationOptions = ({ navigation }) => {
+    let tabBarVisible = true;
+    if (navigation.state.index > 0) {
+      tabBarVisible = false;
+    }
+
+    return {
+      tabBarVisible: tabBarVisible,
+    };
+  };
+
 
 const RootDrawer = createDrawerNavigator({
     NavigatorHome : {
@@ -112,15 +129,8 @@ const DashboardTabRoutes = createBottomTabNavigator({
           // You can check the implementation below.
           // IconComponent = HomeIconWithBadge;
         } else if (routeName === 'Profile') {
-          if(global.currentUser === null || global.currentUser["picture"] === null) {
-            iconName = focused ? require('./assets/profile_focused.png') : require('./assets/profile.png');
-
-          // iconName = `./assets/profile${focused ? '_focused' : ''}.png`;
-            return <Image source={ iconName } style={{width: 25, height: 25}}/>;
-          }
-          else {
-            return <Image source={{ uri: global.currentUser["picture"] }} style={{width: 25, height: 25}}/>;
-          }
+          return <ProfileTabbarIcon
+                    focused={focused} />
         }
 
         // You can return any component that you like here!
@@ -158,7 +168,7 @@ export default class App extends React.Component {
           'CREATE TABLE IF NOT EXISTS contents (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT, picture TEXT, user_id INTEGER, user_name TEXT, user_pic TEXT);'
         );
         tx.executeSql(
-          'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, picture TEXT, current INTEGER DEFAULT 0);'
+          'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, info TEXT, picture TEXT, current INTEGER DEFAULT 0);'
         );
 
         tx.executeSql('SELECT * FROM users', [], (_, { rows: { _array } }) => {
@@ -172,10 +182,10 @@ export default class App extends React.Component {
 
             global.allUsers = _array
             // global.selectedPath = selectedPath;
-            // alert(JSON.stringify(selectedPath))
-            this.setState({ selectedPath: global.currentUser["picture"] })
-
-
+            // alert(JSON.stringify(_array))
+            if(global.currentUser !== null && global.currentUser["picture"] != null) {
+              this.setState({ selectedPath: global.currentUser["picture"] })
+            }
           // }, 3000)}
         }
 

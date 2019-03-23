@@ -96,7 +96,7 @@ export default class CreateScreen extends React.Component {
       }
     }
 
-    global.selectedPath = picture;
+    // global.selectedPath = picture;
 
     if(_this.state.updated !== null) {
       db.transaction(

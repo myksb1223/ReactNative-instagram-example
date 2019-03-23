@@ -40,14 +40,22 @@ export default class ContentRow extends React.Component {
       this.setState({ image: manipResult });
   }
 
+  onLayout = (event) => {
+    // alert("datas: !!!" + JSON.stringify(this.props.rowID));
+    if(this.props.sendOffset) {
+      const {x, y, height, width} = event.nativeEvent.layout;
+      this.props.sendOffset(y, this.props.rowID)      
+    }
+  }
+
   render() {
     let {height, width} = Dimensions.get('window');
     return(
-      <View style={{flex: 1, flexDirection: 'column', margin: 12}}>
+      <View style={{flex: 1, flexDirection: 'column', margin: 12}} onLayout={(event) => this.onLayout(event)}>
         <View style={{flex: 1, flexDirection: 'row', justifyContent: "center",alignItems: "center", marginBottom: 12}}>
-          <Image source={{ uri: this.props.rowData.user_pic }}
+          <Image source={global.currentUser !== null && this.props.rowData.user_id === global.currentUser["id"] ? { uri: global.currentUser["picture"]} : {uri: this.props.rowData.user_pic }}
             style={{ width: 36, height: 36, borderRadius: 18, marginRight: 12 }} />
-          <Text style={{flex: 1, textAlign: 'left', textAlignVertical: "center", fontSize: 14, fontWeight: "bold"}}>{this.props.rowData.user_name}</Text>
+          <Text style={{flex: 1, textAlign: 'left', textAlignVertical: "center", fontSize: 14, fontWeight: "bold"}}>{global.currentUser !== null && this.props.rowData.user_id === global.currentUser["id"] ? global.currentUser.name : this.props.rowData.user_name}</Text>
           <TouchableOpacity
             onPress={() => {
               KSBAlert.showAlert({

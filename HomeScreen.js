@@ -47,6 +47,9 @@ export default class HomeScreen extends React.Component {
       dataSource: ds.cloneWithRows([]),
       datas: null
     };
+
+    global.homeScreen = this;
+    this.rowOffsets = {}
   }
 
   componentWillMount() {
@@ -61,13 +64,27 @@ export default class HomeScreen extends React.Component {
 
     this.read();
 
-    global.container.setState({selectedPath: global.selectedPath})
+    if(global.profileScreen !== null) {
+      global.profileScreen.setState({needReload: true});
+    }
+
+    global.container.setState({selectedPath: global.currentUser["picture"]})
     // alert("componentWillReceiveProps: " + JSON.stringify(global.container.state));
     // TODO perform changes on state change
     // this.camera = nextProps.navigation.getParam('image', null);
     // this.image.setState({image: nextProps.navigation.getParam('image', null)});
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if(this.state !== nextState) {
+      alert("should")
+    }
+
+    if(nextState.needReload) {
+        this.read();
+    }
+    return this.state !== nextState;
+  }
 
   read() {
     db.transaction(
@@ -81,7 +98,7 @@ export default class HomeScreen extends React.Component {
               break
             }
           }
-            this.setState({ dataSource: this.state.dataSource.cloneWithRows(_array), datas: _array})
+            this.setState({ dataSource: this.state.dataSource.cloneWithRows(_array), datas: _array, needReload: false})
             // alert("datas: " + JSON.stringify(this.state.datas));
             // alert(JSON.stringify(_array))
           // }, 3000)}

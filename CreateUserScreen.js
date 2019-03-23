@@ -18,7 +18,12 @@ export default class CreateUserScreen extends React.Component {
         <Button
           onPress={() => {
             params.done();
-            navigation.navigate('Home', {added: 1})
+            if(_this.state.updated !== null) {
+              navigation.navigate('Profile', {added: 1})
+            }
+            else {
+              navigation.navigate('Home', {added: 1})
+            }
           }}
           title="Done"
         />
@@ -29,7 +34,14 @@ export default class CreateUserScreen extends React.Component {
   constructor(props) {
     super(props);
     // this.checkPermisson();
-    this.state = {text: '', height: 0, info: ''};
+    let updated = this.props.navigation.getParam("data", null);
+    let text = '';
+    let info = '';
+    if(updated !== null) {
+      text = updated["name"]
+      info = updated["info"]
+    }
+    this.state = {text: text, height: 0, info: info, updated: updated};
     _this = this;
     this.props.navigation.setParams({
       done: this.add,
@@ -48,7 +60,7 @@ export default class CreateUserScreen extends React.Component {
     }
     // TODO perform changes on state change
     // this.setState({image: nextProps.navigation.getParam('image', null)});
-    this.image.setState({image: nextProps.navigation.getParam('image', "file://")});
+    this.image.setState({image: nextProps.navigation.getParam('image', global.defaultProfileUri)});
     // alert("componentWillReceiveProps: " + JSON.stringify(nextProps) + ", camera : " + JSON.stringify(this.image));
     // this.setState({image: nextProps.navigation.getParam('image', null)});
   }
@@ -59,22 +71,46 @@ export default class CreateUserScreen extends React.Component {
 // }
 
   add() {
-    let current = 0;
-    if(global.selectedPath === null) {
-      current = 1;
-      global.selectedPath = _this.image.state.image
+
+    // alert("info : " + JSON.stringify(_this.state.updated["id"]))
+
+    if(_this.state.updated !== null) {
+      db.transaction(
+            tx => {
+              tx.executeSql('UPDATE users SET name = ?, info = ?, picture = ? WHERE id = ?', [_this.state.text, _this.state.info, _this.image.state.image, _this.state.updated["id"]]);
+
+                tx.executeSql('SELECT * FROM users WHERE current = ?', [1], (_, { rows }) => {
+                  alert(JSON.stringify(rows["_array"][0]))
+                  global.currentUser = rows["_array"][0];
+                });
+
+            },
+          );
     }
+    else {
+      //User can not add profile.
+      let imageUri = _this.image.state.image;
+      if(imageUri === null) {
+        imageUri = global.defaultProfileUri;
+      }
 
-    // alert("info : " + JSON.stringify(_this.state.info))
+      let current = 0;
+      if(global.currentUser === null) {
+        current = 1;
+      }
 
-    db.transaction(
-          tx => {
-            tx.executeSql('INSERT INTO users (name, info, picture, current) values (?, ?, ?, ?)', [_this.state.text, _this.state.info, _this.image.state.image, current]);
-            // tx.executeSql('SELECT * FROM users', [], (_, { rows }) =>
-            //   alert(JSON.stringify(rows))
-            // );
-          },
-        );
+      db.transaction(
+            tx => {
+              tx.executeSql('INSERT INTO users (name, info, picture, current) values (?, ?, ?, ?)', [_this.state.text, _this.state.info, _this.image.state.image, current]);
+              if(current === 1) {
+                tx.executeSql('SELECT * FROM users WHERE current = ?', [1], (_, { rows }) => {
+                  // alert(JSON.stringify(rows["_array"]))
+                  global.currentUser = rows["_array"][0];
+                });
+              }
+            },
+          );
+    }
   }
 
 
