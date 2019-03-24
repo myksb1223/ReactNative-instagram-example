@@ -149,6 +149,7 @@ export default class HomeScreen extends React.Component {
         dataSource={this.state.dataSource}
         renderRow={(rowData, sectionID, rowID) =>
           <ContentRow
+            goToComment={(data) => this.props.navigation.navigate('Comment', { data: data })}
             caller= {this}
             rowData= {rowData}
             sectionID= {sectionID}

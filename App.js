@@ -8,6 +8,8 @@ import CameraScreen from './CameraScreen';
 import HomeScreen from './HomeScreen';
 import ProfileScreen from './ProfileScreen';
 import ProfileTabbarIcon from './ProfileTabbarIcon';
+import ContentScreen from './ContentScreen';
+import CommentScreen from './CommentScreen';
 
 // let selectedPath = null;
 global.currentUser = null;
@@ -67,6 +69,8 @@ Navigator.navigationOptions = ({ navigation }) => {
 const ProfileNavigator = createStackNavigator({
   Profile: { screen: ProfileScreen },
   User: { screen: CreateUserScreen },
+  Content: { screen: ContentScreen },
+  Create: { screen: CreateScreen },
 });
 
 ProfileNavigator.navigationOptions = ({ navigation }) => {
@@ -95,6 +99,7 @@ const HomeStack = createStackNavigator({
     User: { screen: CreateUserScreen },
     Create: { screen: CreateScreen },
     Camera: { screen: CameraScreen },
+    Comment: { screen: CommentScreen},
     /* add routes here where you want the drawer to be locked */
   });
 

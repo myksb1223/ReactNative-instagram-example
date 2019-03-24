@@ -37,6 +37,7 @@ export default class ContentRow extends React.Component {
         { format: 'png' }
       );
 
+      global.chatIcon = manipResult;
       this.setState({ image: manipResult });
   }
 
@@ -44,7 +45,7 @@ export default class ContentRow extends React.Component {
     // alert("datas: !!!" + JSON.stringify(this.props.rowID));
     if(this.props.sendOffset) {
       const {x, y, height, width} = event.nativeEvent.layout;
-      this.props.sendOffset(y, this.props.rowID)      
+      this.props.sendOffset(y, this.props.rowID)
     }
   }
 
@@ -56,7 +57,7 @@ export default class ContentRow extends React.Component {
           <Image source={global.currentUser !== null && this.props.rowData.user_id === global.currentUser["id"] ? { uri: global.currentUser["picture"]} : {uri: this.props.rowData.user_pic }}
             style={{ width: 36, height: 36, borderRadius: 18, marginRight: 12 }} />
           <Text style={{flex: 1, textAlign: 'left', textAlignVertical: "center", fontSize: 14, fontWeight: "bold"}}>{global.currentUser !== null && this.props.rowData.user_id === global.currentUser["id"] ? global.currentUser.name : this.props.rowData.user_name}</Text>
-          <TouchableOpacity
+          {global.currentUser !== null && global.currentUser["id"] === this.props.rowData.user_id && <TouchableOpacity
             onPress={() => {
               KSBAlert.showAlert({
                 caller: this.props.caller,
@@ -69,7 +70,7 @@ export default class ContentRow extends React.Component {
             <Image style={{width: 25, height: 25}}
             resizeMode='center'
              source={ require('./assets/more.png')}/>
-          </TouchableOpacity>
+          </TouchableOpacity>}
         </View>
         <ScrollView
           style={{ flex: 1, marginBottom: 12}}
@@ -105,7 +106,13 @@ export default class ContentRow extends React.Component {
              source={ require('./assets/share.png')}/>
           </TouchableOpacity>
         </View>
-        <Text style={{fontSize: 14}}>{this.props.rowData.content}</Text>
+        <TouchableOpacity
+          onPress={() => {
+            this.props.goToComment(this.props.rowData);
+            }
+          }>
+          <Text style={{fontSize: 14}}>{this.props.rowData.content}</Text>
+        </TouchableOpacity>
       </View>
     )
   }

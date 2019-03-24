@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, ListView, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { Constants, SQLite } from 'expo';
 import ContentRow from './ContentRow';
+import ContentScreen from './ContentScreen';
 
 const db = SQLite.openDatabase('db.db');
 
@@ -18,6 +19,7 @@ export class CountButton extends React.Component {
       <TouchableOpacity
         style={styles.countButton}
         onPress={() => {
+          this.props.moveToFirst();
           }}>
         <Text style={styles.countTextLarge}>
           {this.props.count}{'\n'}
@@ -42,6 +44,7 @@ export class ProfieTopLayout extends React.Component {
           <View style={{flex: 1.5}} />
           <View style={{flex: 6.5, flexDirection: 'row'}}>
             <CountButton
+              moveToFirst={() => this.props.moveToFirst()}
               count={88}
               type={"게시물"}/>
             <CountButton
@@ -149,6 +152,7 @@ export class ProfileLayout extends React.Component {
     return (
       <View style={{flex: 1, flexDirection: 'column', marginTop: 14}}>
         <ProfieTopLayout
+          moveToFirst={() => this.props.moveToFirst()}
           updateProfile={() => {this.props.updateProfile()}}/>
         <View style={{flex: 1, marginTop: 14, marginLeft: 14, marginRight: 14}} >
           <Text style={{ fontWeight: 'bold'}}>{global.currentUser["name"]}</Text>
@@ -210,6 +214,7 @@ export class ProfileRow extends React.Component {
           <TouchableOpacity
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
             onPress={() => {
+              this.props.goToContentScreen(rowData[0])
               }}>
               <Image style={{width: cellWidth, height: cellWidth}}
                source={{ uri: rowData[0].picture }}/>
@@ -225,6 +230,7 @@ export class ProfileRow extends React.Component {
           <TouchableOpacity
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
             onPress={() => {
+              this.props.goToContentScreen(rowData[0])
               }}>
               <Image style={{width: cellWidth, height: cellWidth}}
                source={{ uri: rowData[0].picture }}/>
@@ -232,6 +238,7 @@ export class ProfileRow extends React.Component {
           <TouchableOpacity
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
             onPress={() => {
+              this.props.goToContentScreen(rowData[1])
               }}>
               <Image style={{width: cellWidth, height: cellWidth}}
                source={{ uri: rowData[1].picture }}/>
@@ -246,6 +253,7 @@ export class ProfileRow extends React.Component {
           <TouchableOpacity
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
             onPress={() => {
+              this.props.goToContentScreen(rowData[0])
               }}>
               <Image style={{width: cellWidth, height: cellWidth}}
                source={{ uri: rowData[0].picture }}/>
@@ -253,6 +261,7 @@ export class ProfileRow extends React.Component {
           <TouchableOpacity
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
             onPress={() => {
+              this.props.goToContentScreen(rowData[1])
               }}>
               <Image style={{width: cellWidth, height: cellWidth}}
                source={{ uri: rowData[1].picture }}/>
@@ -260,6 +269,7 @@ export class ProfileRow extends React.Component {
           <TouchableOpacity
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
             onPress={() => {
+              this.props.goToContentScreen(rowData[2])
               }}>
               <Image style={{width: cellWidth, height: cellWidth}}
                source={{ uri: rowData[2].picture }}/>
@@ -275,6 +285,13 @@ export class ProfileRow extends React.Component {
 
   }
 
+  goToEdit(rowID) {
+    this.props.goToEdit(rowID, 0)
+  }
+
+  goToDelete(rowID) {
+    this.props.goToEdit(rowID, 1)
+  }
 
   render() {
 
@@ -283,6 +300,7 @@ export class ProfileRow extends React.Component {
     if(this.props.rowID === "0") {
       return(
         <ProfileLayout
+          moveToFirst={() => this.props.moveToFirst()}
           onSelectType={(type) => this.props.onSelectType(type)}
           updateProfile={() => this.props.updateProfile()}/>
       );
@@ -299,7 +317,7 @@ export class ProfileRow extends React.Component {
         return(
           <ContentRow
             sendOffset={(y, rowID) => this.onRowLayout(y, rowID)}
-            caller= {this.props}
+            caller= {this}
             rowData= {this.props.rowData}
             sectionID= {this.props.sectionID}
             rowID= {this.props.rowID} />
@@ -408,6 +426,7 @@ export default class ProfileScreen extends React.Component {
     });
     global.profileScreen = this;
     this.rowOffsets = {}
+    alert("datas: " + JSON.stringify(global.allUsers));
   }
 
   read() {
@@ -498,18 +517,10 @@ export default class ProfileScreen extends React.Component {
       this.setState({type: type, dataSource: ds.cloneWithRows(global.contents["list"])})
     }
     else {
-      this.scrollToRow(1)
-      // this.setState({type: type, dataSource: ds.cloneWithRows([""])})
+      // this.scrollToRow(1)
+      this.setState({type: type, dataSource: ds.cloneWithRows([""])})
     }
   }
-
-  onScroll = (event) => {
-    // alert("datas: " + JSON.stringify(event.nativeEvent));
-      // if (this.props.onScroll) {
-        // this.props.onScroll(event)
-      // }
-      const offset = event.nativeEvent.contentOffset.y
-    }
 
   scrollToRow = (rowID) => {
     // alert("datas: " + JSON.stringify(this.rowOffsets));
@@ -530,6 +541,38 @@ export default class ProfileScreen extends React.Component {
     // alert("datas!!!: " + rowID)
   }
 
+  goToEdit(rowID, type) {
+    if(type == 0) {
+      let data = global.contents["list"][rowID]
+      this.props.navigation.navigate('Create', { data: data, image: data["picture"] })
+    }
+    else {
+      let data = global.contents["list"][rowID]
+      this.delete(data["id"])
+      this.deleteRow(rowID)
+    }
+  }
+
+  delete(contentId) {
+    db.transaction(
+      tx => {
+        tx.executeSql(`DELETE FROM contents WHERE id = ?;`, [contentId]);
+      },
+      // null,
+      // this.update
+    )
+  }
+
+  deleteRow(rowId) {
+    // let newDatas = this.state.datas.splice()
+
+    global.contents.splice(rowId, 1)
+    // alert("datas: " + JSON.stringify(this.state.datas));
+    this.setState({
+      dataSource: ds.cloneWithRows( this.state.datas ),
+    })
+  }
+
   //리스트 뷰의 renderRow 내에서는 {}를 사용하지 않는다.
   render() {
     // alert("datas: " + JSON.stringify(this.state.type));
@@ -542,6 +585,9 @@ export default class ProfileScreen extends React.Component {
           dataSource={this.state.dataSource}
           renderRow={(rowData, sectionID, rowID) =>
             <ProfileRow
+              goToEdit={(id, type) => this.goToEdit(id, type)}
+              goToContentScreen={(data) => this.props.navigation.navigate('Content', { data: data })}
+              moveToFirst={() => this.scrollToRow(1)}
               sendOffset={(y, rowID) => this.onRowLayout(y, rowID)}
               rowData={rowData}
               sectionID={sectionID}
@@ -564,7 +610,7 @@ export default class ProfileScreen extends React.Component {
               renderRow={(rowData, sectionID, rowID) =>
                 <View style={{flex: 1, backgroundColor: 'white', flexDirection: 'row', }}>
                   <View style={{flex: 1, backgroundColor: 'white', flexDirection: 'row', margin: 10}}>
-                    <Image source={{ uri: rowData["picture"] }} style={{width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: 'black'}}/>
+                    <Image source={rowData["id"] === global.currentUser.id ? { uri: global.currentUser["picture"] } : { uri: rowData["picture"] }} style={{width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: 'black'}}/>
                     <View style={{flex: 1, justifyContent: 'center', marginLeft: 10}}>
                       <Text style={{fontWeight: 'bold'}}>{rowData["name"]}</Text>
                     </View>
