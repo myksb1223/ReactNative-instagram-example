@@ -35,7 +35,6 @@ export default class CommentScreen extends React.Component {
       dataSource: ds.cloneWithRows([""]),
       data: data,
       composerHeight: this.props.minComposerHeight,
-      text: null,
       typingDisabled: false,
       messagesContainerHeight: null,
     }
@@ -205,6 +204,7 @@ export default class CommentScreen extends React.Component {
   }
 
   onInputTextChanged(text) {
+          // alert("here true : " + text);
     if (this.getIsTypingDisabled()) {
       return;
     }
@@ -287,13 +287,14 @@ export default class CommentScreen extends React.Component {
   }
 
   render() {
+    // alert("height : " +this.state.messagesContainerHeight);
     let {height, width} = Dimensions.get('window');
     if (this.state.isInitialized === true) {
       return (
-        <View style={{flex: 1, flexDirection: 'column' }} onLayout={this.onMainViewLayout}>
+        <View style={{flex: 1, flexDirection: 'column', backgroundColor: '#000000' }} onLayout={this.onMainViewLayout}>
+          <View style={{height: this.state.messagesContainerHeight, backgroundColor: '#FFFF00' }}>
           <ScrollView
           {...this.props}
-           style={{flex: 1, flexDirection: 'column' }}
            {...this.invertibleScrollViewProps}
            automaticallyAdjustContentInsets={false}
           inverted={this.props.inverted}
@@ -302,8 +303,8 @@ export default class CommentScreen extends React.Component {
                 <Text style={{fontSize: 14, margin: 12 }}>{this.state.data.content}</Text>
                 <View style={{width: width, height: 1, backgroundColor: 'lightgray'}}/>
               </View>
-
           </ScrollView>
+        </View>
           {this.renderInputToolbar()}
         </View>
       );
@@ -328,7 +329,7 @@ CommentScreen.defaultProps = {
   placeholder: "Input text",
   onSend: () => { },
   isAnimated: Platform.select({
-    ios: true,
+    ios: false,
     android: false,
   }),
   textInputProps: {},

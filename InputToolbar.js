@@ -66,14 +66,14 @@ export default class InputToolbar extends React.Component {
           <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
             <Image source={{ uri: global.currentUser["picture"] }} style={{ width: 35, height: 35, borderRadius: 17.5}}/>
           </View>
-          <View style={{flex: 7, flexDirection: 'row', borderRadius: 10, borderWidth: 1, borderColor: 'lightgray', alignItems: 'center',}}>
+          <View style={{flex: 7, flexDirection: 'row', borderRadius: 10, borderWidth: 1, borderColor: 'lightgray', alignItems: 'flex-end',}}>
             <TextInput
                   style={{flex: 7, alignSelf: 'stretch', backgroundColor: 'yellow', height: this.props.composerHeight, marginRight: 12, marginLeft: 12,}}
                   placeholder="Input content"
                   multiline={true}
                   onChange={(e) => this.onContentSizeChange(e)}
                   onContentSizeChange={(e) => this.onContentSizeChange(e)}
-                  onChangeText={(text) => this.setState({text})}
+                  onChangeText={(text) => this.onChangeText(text)}
                   value={this.props.text}
                   {...this.props.textInputProps}
 
@@ -93,12 +93,12 @@ export default class InputToolbar extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     bottom: 0,
     left: 0,
     right: 0,
     borderTopWidth: 1,
     borderColor: 'lightgray',
+    backgroundColor: '#FF0000'
   },
 
 });
