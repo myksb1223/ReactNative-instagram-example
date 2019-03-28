@@ -17,6 +17,7 @@ global.container = null;
 global.contents = new Array();
 global.contents["map"] = null;
 global.contents["list"] = null;
+global.contents["likes"] = null;
 global.allUsers = null;
 global.defaultProfileUri = Asset.fromModule(require('./assets/profile.png')).uri;
 global.profileScreen = null;
@@ -71,6 +72,7 @@ const ProfileNavigator = createStackNavigator({
   User: { screen: CreateUserScreen },
   Content: { screen: ContentScreen },
   Create: { screen: CreateScreen },
+  Comment: { screen: CommentScreen},
 });
 
 ProfileNavigator.navigationOptions = ({ navigation }) => {
@@ -168,7 +170,7 @@ export default class App extends React.Component {
         // alert("componentWillReceiveProps: " + JSON.stringify(this.props));
       db.transaction(tx => {
         // tx.executeSql('DROP TABLE users;');
-        // tx.executeSql('DROP TABLE contents;');
+        // tx.executeSql('DROP TABLE content_likes;');
         tx.executeSql(
           'CREATE TABLE IF NOT EXISTS contents (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT, picture TEXT, user_id INTEGER, user_name TEXT, user_pic TEXT);'
         );
@@ -176,25 +178,18 @@ export default class App extends React.Component {
           'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, info TEXT, picture TEXT, current INTEGER DEFAULT 0);'
         );
 
-        tx.executeSql('SELECT * FROM users', [], (_, { rows: { _array } }) => {
-          // setTimeout(() =>  {
-            for(var i in _array) {
-              if(1 === _array[i]["current"]) {
-                global.currentUser = _array[i]
-                break
-              }
-            }
-
-            global.allUsers = _array
-            // global.selectedPath = selectedPath;
-            // alert(JSON.stringify(_array))
-            if(global.currentUser !== null && global.currentUser["picture"] != null) {
-              this.setState({ selectedPath: global.currentUser["picture"] })
-            }
-          // }, 3000)}
-        }
-
+        tx.executeSql(
+          'CREATE TABLE IF NOT EXISTS content_likes (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, content_id INTEGER, is_like INTEGER DEFAULT 0);'
         );
+
+        tx.executeSql(
+          'CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, content_id INTEGER, content TEXT);'
+        );
+
+        tx.executeSql(
+          'CREATE TABLE IF NOT EXISTS comment_likes (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, comment_id INTEGER, is_like INTEGER DEFAULT 0);'
+        );
+
       });
     }
 

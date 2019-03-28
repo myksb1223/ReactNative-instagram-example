@@ -83,15 +83,16 @@ export default class ContentRow extends React.Component {
         <View style={{flex: 1, flexDirection: 'row', marginBottom: 12}}>
           <TouchableOpacity
             onPress={() => {
-
+              this.props.heartPressed(this.props.rowData);
               }
             }>
             <Image style={{width: 25, height: 25}}
             resizeMode='contain'
-             source={ require('./assets/heart.png')}/>
+             source={ this.props.rowData["like"] === 1 ? require('./assets/heart_selected.png') : require('./assets/heart.png')}/>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
+              this.props.goToComment(this.props.rowData);
               }
             }>
             {this.state.ready && this._renderImage()}

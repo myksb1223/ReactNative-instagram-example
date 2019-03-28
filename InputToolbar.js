@@ -62,8 +62,8 @@ export default class InputToolbar extends React.Component {
   render() {
     return(
       <View style={[styles.container, {position: this.state.position}]} >
-        <View style={{flexDirection: 'row', alignItems: 'flex-end', }}>
-          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{flexDirection: 'row', alignItems: 'flex-end', marginTop: 6.5, marginBottom: 6.5}}>
+          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', }}>
             <Image source={{ uri: global.currentUser["picture"] }} style={{ width: 35, height: 35, borderRadius: 17.5}}/>
           </View>
           <View style={{flex: 7, flexDirection: 'row', borderRadius: 10, borderWidth: 1, borderColor: 'lightgray', alignItems: 'flex-end',}}>
@@ -79,7 +79,7 @@ export default class InputToolbar extends React.Component {
 
                 />
 
-            <TouchableOpacity style={{flex: 1}}>
+            <TouchableOpacity style={{flex: 1, marginBottom: 10}}>
               <Text>게시</Text>
             </TouchableOpacity>
           </View>

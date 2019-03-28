@@ -94,6 +94,7 @@ export default class CommentScreen extends React.Component {
     this.setKeyboardHeight(e.endCoordinates ? e.endCoordinates.height : e.end.height);
     this.setBottomOffset(this.props.bottomOffset);
     const newMessagesContainerHeight = this.getMessagesContainerHeightWithKeyboard();
+    alert("message size : " + this.state.composerHeight);
     if (this.props.isAnimated === true) {
       Animated.timing(this.state.messagesContainerHeight, {
         toValue: newMessagesContainerHeight,
@@ -293,18 +294,18 @@ export default class CommentScreen extends React.Component {
       return (
         <View style={{flex: 1, flexDirection: 'column', backgroundColor: '#000000' }} onLayout={this.onMainViewLayout}>
           <View style={{height: this.state.messagesContainerHeight, backgroundColor: '#FFFF00' }}>
-          <ScrollView
-          {...this.props}
-           {...this.invertibleScrollViewProps}
-           automaticallyAdjustContentInsets={false}
-          inverted={this.props.inverted}
-          scrollEventThrottle={100}>
-              <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between',}}>
-                <Text style={{fontSize: 14, margin: 12 }}>{this.state.data.content}</Text>
-                <View style={{width: width, height: 1, backgroundColor: 'lightgray'}}/>
-              </View>
-          </ScrollView>
-        </View>
+            <ScrollView
+            {...this.props}
+             {...this.invertibleScrollViewProps}
+             automaticallyAdjustContentInsets={false}
+            inverted={this.props.inverted}
+            scrollEventThrottle={100}>
+                <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between',}}>
+                  <Text style={{fontSize: 14, margin: 12 }}>{this.state.data.content}</Text>
+                  <View style={{width: width, height: 1, backgroundColor: 'lightgray'}}/>
+                </View>
+            </ScrollView>
+          </View>
           {this.renderInputToolbar()}
         </View>
       );
@@ -314,13 +315,6 @@ export default class CommentScreen extends React.Component {
         {null}
       </View>
     );
-    // else {
-    //   return
-    //   <View style={{flex: 1,}} onLayout={this.onInitialLayoutViewLayout}>
-    //
-    //   </View>
-    // }
-
   }
 }
 

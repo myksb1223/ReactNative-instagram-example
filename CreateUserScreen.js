@@ -76,16 +76,16 @@ export default class CreateUserScreen extends React.Component {
 
     if(_this.state.updated !== null) {
       db.transaction(
-            tx => {
-              tx.executeSql('UPDATE users SET name = ?, info = ?, picture = ? WHERE id = ?', [_this.state.text, _this.state.info, _this.image.state.image, _this.state.updated["id"]]);
+        tx => {
+          tx.executeSql('UPDATE users SET name = ?, info = ?, picture = ? WHERE id = ?', [_this.state.text, _this.state.info, _this.image.state.image, _this.state.updated["id"]]);
 
-                tx.executeSql('SELECT * FROM users WHERE current = ?', [1], (_, { rows }) => {
-                  alert(JSON.stringify(rows["_array"][0]))
-                  global.currentUser = rows["_array"][0];
-                });
+            tx.executeSql('SELECT * FROM users WHERE current = ?', [1], (_, { rows }) => {
+              alert(JSON.stringify(rows["_array"][0]))
+              global.currentUser = rows["_array"][0];
+            });
 
-            },
-          );
+        },
+      );
     }
     else {
       //User can not add profile.
@@ -100,16 +100,16 @@ export default class CreateUserScreen extends React.Component {
       }
 
       db.transaction(
-            tx => {
-              tx.executeSql('INSERT INTO users (name, info, picture, current) values (?, ?, ?, ?)', [_this.state.text, _this.state.info, _this.image.state.image, current]);
-              if(current === 1) {
-                tx.executeSql('SELECT * FROM users WHERE current = ?', [1], (_, { rows }) => {
-                  // alert(JSON.stringify(rows["_array"]))
-                  global.currentUser = rows["_array"][0];
-                });
-              }
-            },
-          );
+        tx => {
+          tx.executeSql('INSERT INTO users (name, info, picture, current) values (?, ?, ?, ?)', [_this.state.text, _this.state.info, _this.image.state.image, current]);
+          if(current === 1) {
+            tx.executeSql('SELECT * FROM users WHERE current = ?', [1], (_, { rows }) => {
+              // alert(JSON.stringify(rows["_array"]))
+              global.currentUser = rows["_array"][0];
+            });
+          }
+        },
+      );
     }
   }
 

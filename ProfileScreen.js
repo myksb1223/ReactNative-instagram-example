@@ -316,6 +316,7 @@ export class ProfileRow extends React.Component {
         alert("datas: " + JSON.stringify(this.props));
         return(
           <ContentRow
+            goToComment={(data) => this.props.goToComment(data)}
             sendOffset={(y, rowID) => this.onRowLayout(y, rowID)}
             caller= {this}
             rowData= {this.props.rowData}
@@ -426,7 +427,7 @@ export default class ProfileScreen extends React.Component {
     });
     global.profileScreen = this;
     this.rowOffsets = {}
-    alert("datas: " + JSON.stringify(global.allUsers));
+    // alert("datas: " + JSON.stringify(global.allUsers));
   }
 
   read() {
@@ -434,7 +435,7 @@ export default class ProfileScreen extends React.Component {
     let map = new Array();
     db.transaction(
       tx => {
-        tx.executeSql('SELECT * FROM contents WHERE user_id = ?', [global.currentUser["id"]], (_, { rows: { _array } }) => {
+        tx.executeSql('SELECT * FROM contents WHERE user_id = ? ORDER BY id DESC', [global.currentUser["id"]], (_, { rows: { _array } }) => {
           // setTimeout(() =>  {
           // const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
@@ -495,7 +496,7 @@ export default class ProfileScreen extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     if(this.state !== nextState) {
-      alert("should")
+      // alert("should")
     }
 
     if(nextState.needReload) {
@@ -594,6 +595,7 @@ export default class ProfileScreen extends React.Component {
               rowID={rowID}
               type={this.state.type}
               onSelectType={(type) => this.updateType(type)}
+              goToComment={(data) => this.props.navigation.navigate('Comment', { data: data })}
               updateProfile={() => this.props.navigation.navigate('User', { data: global.currentUser, image: global.currentUser["picture"] })} />
             }
           enableEmptySections
