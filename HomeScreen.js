@@ -2,6 +2,11 @@ import React from 'react';
 import { StyleSheet, Text, View, ListView, Button, ActivityIndicator, Image, TouchableOpacity, ScrollView, ActionSheetIOS, Platform, Alert, RefreshControl } from 'react-native';
 import { Constants, SQLite } from 'expo';
 import ContentRow from './ContentRow';
+import * as DatabaseUtil from './DatabaseUtil';
+
+export {
+   DatabaseUtil
+};
 
 const db = SQLite.openDatabase('db.db');
 
@@ -126,7 +131,12 @@ export default class HomeScreen extends React.Component {
   read() {
     db.transaction(
       tx => {
-        tx.executeSql('SELECT * FROM contents ORDER BY id DESC LIMIT ?', [(this.state.moreCount+1) * 18], (_, { rows: { _array } }) => {
+        let query = 'SELECT * FROM contents ORDER BY id DESC LIMIT ?'
+        if(this.state.isLoadingMore) {
+          alert("here")
+          query = 'SELECT * FROM contents WHERE id < ' + this.state.datas[this.state.datas.length-1]["id"] + ' ORDER BY id DESC LIMIT ?'
+        }
+        tx.executeSql(query, [(this.state.moreCount+1) * 18], (_, { rows: { _array } }) => {
           // setTimeout(() =>  {
           // const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
           for(var i in _array) {
@@ -145,6 +155,8 @@ export default class HomeScreen extends React.Component {
 
           if(this.state.isLoadingMore) {
             // alert("loadingMore" + _array.length);
+            let temp = this.state.datas
+            _array = temp.concat(_array)
             this.setState({ dataSource: this.state.dataSource.cloneWithRows(_array), datas: _array, needReload: false, moreCount: this.state.moreCount+1})
           }
           else {
@@ -218,43 +230,46 @@ export default class HomeScreen extends React.Component {
     // });
   }
 
-  heartPressed(data) {
-    if(data["like"] === undefined) {
-      data["like"] = 1;
-      // alert("user : " + global.currentUser["id"] + ", " + data["id"])
-      db.transaction(
-        tx => {
-          tx.executeSql('INSERT INTO content_likes (user_id, content_id, is_like) values (?, ?, ?)', [global.currentUser["id"], data["id"], data["like"]]);
-          tx.executeSql('SELECT * FROM content_likes WHERE user_id = ?', [global.currentUser["id"]], (_, { rows }) => {
-            alert(JSON.stringify(rows["_array"]))
-            global.contents["likes"] = rows
-          });
-        },
-      );
-    }
-    else {
-      if(data["like"] === 1) {
-        data["like"] = 0;
-      }
-      else {
-        data["like"] = 1;
-      }
-
-      db.transaction(
-        tx => {
-          tx.executeSql('UPDATE content_likes SET is_like = ? WHERE user_id = ? AND content_id = ?', [data["like"], global.currentUser["id"], data["id"]]);
-
-          forglobal.contents["likes"]
-        },
-      );
-    }
-
-    this.setState({
-      dataSource: ds.cloneWithRows( this.state.datas ),
-    })
-    // alert(JSON.stringify(this.state.datas[0]))
-
-  }
+  // heartPressed(data) {
+  //   if(data["like"] === undefined) {
+  //     data["like"] = 1;
+  //     // alert("user : " + global.currentUser["id"] + ", " + data["id"])
+  //     db.transaction(
+  //       tx => {
+  //         tx.executeSql('INSERT INTO content_likes (user_id, content_id, is_like) values (?, ?, ?)', [global.currentUser["id"], data["id"], data["like"]]);
+  //         tx.executeSql('SELECT * FROM content_likes WHERE user_id = ?', [global.currentUser["id"]], (_, { rows }) => {
+  //           alert(JSON.stringify(rows["_array"]))
+  //           global.contents["likes"] = rows
+  //         });
+  //       },
+  //     );
+  //   }
+  //   else {
+  //     if(data["like"] === 1) {
+  //       data["like"] = 0;
+  //     }
+  //     else {
+  //       data["like"] = 1;
+  //     }
+  //
+  //     db.transaction(
+  //       tx => {
+  //         tx.executeSql('UPDATE content_likes SET is_like = ? WHERE user_id = ? AND content_id = ?', [data["like"], global.currentUser["id"], data["id"]]);
+  //
+  //         tx.executeSql('SELECT * FROM content_likes WHERE user_id = ?', [global.currentUser["id"]], (_, { rows }) => {
+  //           alert(JSON.stringify(rows["_array"]))
+  //           global.contents["likes"] = rows
+  //         });
+  //       },
+  //     );
+  //   }
+  //
+  //   this.setState({
+  //     dataSource: ds.cloneWithRows( this.state.datas ),
+  //   })
+  //   // alert(JSON.stringify(this.state.datas[0]))
+  //
+  // }
 
   render() {
     // alert("datas: " + JSON.stringify(global.selectedPath));
@@ -270,7 +285,15 @@ export default class HomeScreen extends React.Component {
           dataSource={this.state.dataSource}
           renderRow={(rowData, sectionID, rowID) =>
             <ContentRow
-              heartPressed={(data) => this.heartPressed(data)}
+              heartPressed={(data) => {
+                DatabaseUtil.heartStateUpdate({
+                caller: this,
+                data: data,
+                })
+                this.setState({
+                  dataSource: ds.cloneWithRows( this.state.datas ),
+                })
+              }}
               goToComment={(data) => this.props.navigation.navigate('Comment', { data: data })}
               caller= {this}
               rowData= {rowData}

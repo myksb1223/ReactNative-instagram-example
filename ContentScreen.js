@@ -6,6 +6,13 @@ export {
    KSBAlert
 };
 
+import * as DatabaseUtil from './DatabaseUtil';
+
+export {
+   DatabaseUtil
+};
+
+
 export class ContentTopLayout extends React.Component {
   render() {
     let {height, width} = Dimensions.get('window');
@@ -41,15 +48,20 @@ export class ContentTopLayout extends React.Component {
         <View style={{flex: 1, flexDirection: 'row', marginBottom: 12}}>
           <TouchableOpacity
             onPress={() => {
-
+                  let data = DatabaseUtil.heartStateUpdate({
+                  caller: this,
+                  data: this.props.data,
+                  })
+                  this.setState({data: data})
               }
             }>
             <Image style={{width: 25, height: 25}}
             resizeMode='contain'
-             source={ require('./assets/heart.png')}/>
+             source={ this.props.data["like"] === 1 ? require('./assets/heart_selected.png') : require('./assets/heart.png')}/>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
+                this.props.goToComment(this.props.data)
               }
             }>
             <Image
@@ -95,6 +107,13 @@ export default class CreateScreen extends React.Component {
     super(props);
 
     let data = this.props.navigation.getParam("data", null);
+    for(var k in global.contents["likes"]) {
+      if(global.contents["likes"][k]["content_id"] === data["id"]) {
+        data["like"] = global.contents["likes"][k]["is_like"];
+        break;
+      }
+    }
+
     this.state = {
       data: data,
     }
@@ -125,7 +144,8 @@ export default class CreateScreen extends React.Component {
         <View style={{flex: 1, flexDirection: 'column'}}>
           <ContentTopLayout
             caller={this}
-            data={this.state.data} />
+            data={this.state.data}
+            goToComment={(data) => this.props.navigation.navigate('Comment', { data: data })} />
           <Text style={{fontSize: 14}}>{this.state.data.content}</Text>
         </View>
       </ScrollView>

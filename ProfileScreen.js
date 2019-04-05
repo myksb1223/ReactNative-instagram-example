@@ -1,8 +1,13 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, ListView, Dimensions, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, ListView, Dimensions, TouchableWithoutFeedback, RefreshControl, ActivityIndicator } from 'react-native';
 import { Constants, SQLite } from 'expo';
 import ContentRow from './ContentRow';
 import ContentScreen from './ContentScreen';
+import * as DatabaseUtil from './DatabaseUtil';
+
+export {
+   DatabaseUtil
+};
 
 const db = SQLite.openDatabase('db.db');
 
@@ -313,9 +318,10 @@ export class ProfileRow extends React.Component {
         );
       }
       else if(this.props.type === 1) {
-        alert("datas: " + JSON.stringify(this.props));
+        // alert("datas: " + JSON.stringify(this.props));
         return(
           <ContentRow
+            heartPressed={(data) => {this.props.heartPressed(data)}}
             goToComment={(data) => this.props.goToComment(data)}
             sendOffset={(y, rowID) => this.onRowLayout(y, rowID)}
             caller= {this}
@@ -420,6 +426,9 @@ export default class ProfileScreen extends React.Component {
       type: 0,
       needReload: false,
       needReloadOnlyProfile: false,
+      refreshing: false,
+      isLoadingMore: false,
+      moreCount: 0,
     };
     _this = this;
     this.props.navigation.setParams({
@@ -431,16 +440,28 @@ export default class ProfileScreen extends React.Component {
   }
 
   read() {
-    // alert("datas: " + JSON.stringify(global.currentUser["id"]));
+    alert("datas: " + JSON.stringify(global.currentUser["id"]));
     let map = new Array();
     db.transaction(
+
       tx => {
-        tx.executeSql('SELECT * FROM contents WHERE user_id = ? ORDER BY id DESC', [global.currentUser["id"]], (_, { rows: { _array } }) => {
+        let query = 'SELECT * FROM contents WHERE user_id = ? ORDER BY id DESC LIMIT ?'
+        if(this.state.isLoadingMore) {
+          alert("here")
+          query = 'SELECT * FROM contents WHERE user_id = ? AND id < ' + global.contents["list"][global.contents["list"].length-1]["id"] + ' ORDER BY id DESC LIMIT ?'
+        }
+
+        tx.executeSql(query, [global.currentUser["id"], (this.state.moreCount+1) * 18], (_, { rows: { _array } }) => {
           // setTimeout(() =>  {
           // const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
           let j = -1;
           for(var i in _array) {
+            for(var k in global.contents["likes"]) {
+              if(global.contents["likes"][k]["content_id"] === _array[i]["id"]) {
+                _array[i]["like"] = global.contents["likes"][k]["is_like"]
+              }
+            }
             if(i % 3 === 0) {
               let subMap = new Array();
               j = j + 1;
@@ -453,11 +474,36 @@ export default class ProfileScreen extends React.Component {
             map[j][i%3] = _array[i];
           }
 
-          map.unshift(global.currentUser)
-          _array.unshift(global.currentUser)
-          global.contents["map"] = map;
-          global.contents["list"] = _array;
-            this.setState({ dataSource: this.state.dataSource.cloneWithRows(map), ready: true, needReload: false})
+          if(this.state.isLoadingMore) {
+            let tempMap = global.contents["map"]
+            map = tempMap.concat(map)
+            let tempList = global.contents["list"]
+            _array = tempList.concat(_array)
+            global.contents["map"] = map;
+            global.contents["list"] = _array;
+            let renderDatas = undefined
+            if(this.state.type === 0) {
+              renderDatas = map;
+            }
+            else {
+              renderDatas = _array;
+            }
+            this.setState({ dataSource: this.state.dataSource.cloneWithRows(renderDatas), ready: true, needReload: false, moreCount: this.state.moreCount+1})
+          }
+          else {
+            map.unshift(global.currentUser)
+            _array.unshift(global.currentUser)
+            global.contents["map"] = map;
+            global.contents["list"] = _array;
+            let renderDatas = undefined
+            if(this.state.type === 0) {
+              renderDatas = map;
+            }
+            else {
+              renderDatas = _array;
+            }
+              this.setState({ dataSource: this.state.dataSource.cloneWithRows(renderDatas), ready: true, needReload: false, refreshing: false})
+          }
             // alert("datas: " + JSON.stringify(map[1].length));
             // alert(JSON.stringify(_array))
           // }, 3000)}
@@ -519,7 +565,7 @@ export default class ProfileScreen extends React.Component {
     }
     else {
       // this.scrollToRow(1)
-      this.setState({type: type, dataSource: ds.cloneWithRows([""])})
+      this.setState({type: type, dataSource: ds.cloneWithRows([global.currentUser])})
     }
   }
 
@@ -567,11 +613,57 @@ export default class ProfileScreen extends React.Component {
   deleteRow(rowId) {
     // let newDatas = this.state.datas.splice()
 
-    global.contents.splice(rowId, 1)
+    global.contents["list"].splice(rowId, 1)
+    let map = new Array();
+    for(var i in global.contents["list"]) {
+      if(i !== 0) {
+        if(i % 3 === 0) {
+          let subMap = new Array();
+          j = j + 1;
+          map[j] = subMap;
+        }
+        map[j][i%3] = global.contents["list"][i];
+      }
+    }
+
+    map.unshift(global.currentUser);
+    global.contents["map"] = map;
     // alert("datas: " + JSON.stringify(this.state.datas));
     this.setState({
-      dataSource: ds.cloneWithRows( this.state.datas ),
+      dataSource: ds.cloneWithRows( global.contents["list"] ),
     })
+  }
+
+  fetchMore() {
+    // alert("fetchMore"+this.state.datas.length + ", " + 3*(this.state.moreCount+1))
+    if(this.state.type !== 2) {
+      let datas = [global.currentUser]
+      if(this.state.type === 0) {
+        datas = global.contents["map"]
+      }
+      else if(this.state.type === 1) {
+        datas = global.contents["list"]
+      }
+
+      if(datas.length >= 18*(this.state.moreCount+1)) {
+        // alert("fetchMore")
+        this.read();
+      }
+      else {
+        this.setState({isLoadingMore: false});
+      }
+    }
+  }
+
+  _onRefresh = () => {
+    if(this.state.type !== 2) {
+      this.setState({refreshing: true, moreCount: 0}, () => this.read());
+    }
+
+
+    // fetchData().then(() => {
+      // this.setState({refreshing: false});
+    // });
   }
 
   //리스트 뷰의 renderRow 내에서는 {}를 사용하지 않는다.
@@ -586,6 +678,15 @@ export default class ProfileScreen extends React.Component {
           dataSource={this.state.dataSource}
           renderRow={(rowData, sectionID, rowID) =>
             <ProfileRow
+              heartPressed={(data) => {
+                DatabaseUtil.heartStateUpdate({
+                caller: this,
+                data: data,
+                })
+                this.setState({
+                  dataSource: ds.cloneWithRows(global.contents["list"])
+                })
+              }}
               goToEdit={(id, type) => this.goToEdit(id, type)}
               goToContentScreen={(data) => this.props.navigation.navigate('Content', { data: data })}
               moveToFirst={() => this.scrollToRow(1)}
@@ -599,6 +700,23 @@ export default class ProfileScreen extends React.Component {
               updateProfile={() => this.props.navigation.navigate('User', { data: global.currentUser, image: global.currentUser["picture"] })} />
             }
           enableEmptySections
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.refreshing}
+              onRefresh={this._onRefresh}
+            />
+          }
+          onEndReachedThreshold={100}
+          onEndReached={() =>
+              this.setState({ isLoadingMore: true }, () => this.fetchMore())}
+          renderFooter={() => {
+            return (
+              this.state.isLoadingMore &&
+              <View style={{ flex: 1, padding: 10 }}>
+                <ActivityIndicator size="small" />
+              </View>
+            );
+          }}
         />
         {this.state.popUp && <View style={{flex: 1, flexDirection: 'column', position: 'absolute', left: 0, top: 0, backgroundColor: 'rgba(1, 0, 0, 0.6)', width: width, height: height}}>
           <TouchableOpacity style={{flex: 1}}
