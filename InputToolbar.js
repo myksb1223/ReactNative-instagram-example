@@ -59,6 +59,10 @@ export default class InputToolbar extends React.Component {
     this.props.onTextChanged(text);
   }
 
+  onSend(text) {
+    this.props.onSend(text);
+  }
+
   render() {
     return(
       <View style={[styles.container, {position: this.state.position}]} >
@@ -79,7 +83,11 @@ export default class InputToolbar extends React.Component {
 
                 />
 
-            <TouchableOpacity style={{flex: 1, marginBottom: 10}}>
+            <TouchableOpacity style={{flex: 1, marginBottom: 10}}
+              onPress={() => {
+                this.onSend(this.props.text)
+                }
+              }>
               <Text>게시</Text>
             </TouchableOpacity>
           </View>

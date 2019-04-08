@@ -1,6 +1,15 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, ListView, Image, TouchableOpacity, Dimensions, TextInput, Keyboard, Platform, Animated} from 'react-native';
+import { StyleSheet, Text, View, ListView, Image, TouchableOpacity, Dimensions, TextInput, Keyboard, Platform, Animated, ActivityIndicator} from 'react-native';
+import { Constants, SQLite } from 'expo';
 import InputToolbar from './InputToolbar'
+import CommentRow from './CommentRow';
+import * as DatabaseUtil from './DatabaseUtil';
+
+export {
+   DatabaseUtil
+};
+
+const db = SQLite.openDatabase('db.db');
 
 let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
@@ -33,10 +42,13 @@ export default class CommentScreen extends React.Component {
     let data = this.props.navigation.getParam("data", null);
     this.state = {
       dataSource: ds.cloneWithRows([""]),
+      datas: null,
       data: data,
       composerHeight: this.props.minComposerHeight,
       typingDisabled: false,
       messagesContainerHeight: null,
+      isLoadingMore: false,
+      moreCount: 0,
     }
 
     this.onKeyboardWillShow = this.onKeyboardWillShow.bind(this);
@@ -47,6 +59,7 @@ export default class CommentScreen extends React.Component {
     this.onInputTextChanged = this.onInputTextChanged.bind(this);
     this.onMainViewLayout = this.onMainViewLayout.bind(this);
     this.onInitialLayoutViewLayout = this.onInitialLayoutViewLayout.bind(this);
+    this.onSend = this.onSend.bind(this);
 
     this.invertibleScrollViewProps = {
       inverted: this.props.inverted,
@@ -56,6 +69,11 @@ export default class CommentScreen extends React.Component {
       onKeyboardDidShow: this.onKeyboardDidShow,
       onKeyboardDidHide: this.onKeyboardDidHide,
     };
+  }
+
+  componentWillMount() {
+    this.read();
+    // alert('willmount');
   }
 
   setTextFromProp(textProp) {
@@ -94,7 +112,7 @@ export default class CommentScreen extends React.Component {
     this.setKeyboardHeight(e.endCoordinates ? e.endCoordinates.height : e.end.height);
     this.setBottomOffset(this.props.bottomOffset);
     const newMessagesContainerHeight = this.getMessagesContainerHeightWithKeyboard();
-    alert("message size : " + this.state.composerHeight);
+    // alert("message size : " + this.state.composerHeight);
     if (this.props.isAnimated === true) {
       Animated.timing(this.state.messagesContainerHeight, {
         toValue: newMessagesContainerHeight,
@@ -218,6 +236,65 @@ export default class CommentScreen extends React.Component {
     }
   }
 
+  read() {
+    db.transaction(
+
+      tx => {
+        let query = 'SELECT * FROM comments WHERE content_id = ? ORDER BY id DESC LIMIT ?'
+        if(this.state.isLoadingMore) {
+          query = 'SELECT * FROM contents WHERE content_id = ? AND id < ' + this.state.datas[this.state.datas.length-1]["id"] + ' ORDER BY id DESC LIMIT ?'
+        }
+
+        tx.executeSql(query, [this.state.data["id"], (this.state.moreCount+1) * 20], (_, { rows: { _array } }) => {
+
+          for(var i in _array) {
+            for(var j in global.allUsers) {
+              if(_array[i].user_id === global.allUsers[j].id) {
+                _array[i]["user_pic"] = global.allUsers[j].picture
+                _array[i]["user_name"] = global.allUsers[j].name
+              }
+            }
+          }
+
+          if(this.state.isLoadingMore) {
+            let datas = this.state.datas.concat(_array)
+            this.setState({ dataSource: this.state.dataSource.cloneWithRows(datas), datas: datas, moreCount: this.state.moreCount+1})
+          }
+          else {
+            _array.unshift("");
+            alert(JSON.stringify(_array[1]))
+            this.setState({ dataSource: this.state.dataSource.cloneWithRows(_array), datas: _array, moreCount: 0})
+          }
+        }
+
+        );
+      },
+      // null,
+      // this.update
+    );
+  }
+
+  fetchMore() {
+    // alert("fetchMore"+this.state.datas.length + ", " + 3*(this.state.moreCount+1))
+
+    if(this.state.datas.length >= 20*(this.state.moreCount+1)) {
+      this.read();
+    }
+    else {
+      this.setState({isLoadingMore: false});
+    }
+  }
+
+  onSend(text) {
+    // alert(JSON.stringify(this.state.))
+
+    DatabaseUtil.insertComments({
+      caller: this,
+      data: this.state.data,
+      text: text,
+    })
+  }
+
   renderInputToolbar() {
     const inputToolbarProps = {
       ...this.props,
@@ -294,17 +371,33 @@ export default class CommentScreen extends React.Component {
       return (
         <View style={{flex: 1, flexDirection: 'column', backgroundColor: '#000000' }} onLayout={this.onMainViewLayout}>
           <View style={{height: this.state.messagesContainerHeight, backgroundColor: '#FFFF00' }}>
-            <ScrollView
+            <ListView
+            ref={component => this.listView = component}
             {...this.props}
              {...this.invertibleScrollViewProps}
+             dataSource={this.state.dataSource}
              automaticallyAdjustContentInsets={false}
             inverted={this.props.inverted}
-            scrollEventThrottle={100}>
-                <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between',}}>
-                  <Text style={{fontSize: 14, margin: 12 }}>{this.state.data.content}</Text>
-                  <View style={{width: width, height: 1, backgroundColor: 'lightgray'}}/>
+            scrollEventThrottle={100}
+            renderRow={(rowData, sectionID, rowID) =>
+              <CommentRow
+                data= {this.state.data}                
+                rowData= {rowData}
+                sectionID= {sectionID}
+                rowID= {rowID} />
+            }
+            onEndReachedThreshold={100}
+            onEndReached={() =>
+                this.setState({ isLoadingMore: true }, () => this.fetchMore())}
+            renderFooter={() => {
+              return (
+                this.state.isLoadingMore &&
+                <View style={{ flex: 1, padding: 10 }}>
+                  <ActivityIndicator size="small" />
                 </View>
-            </ScrollView>
+              );
+            }}
+             />
           </View>
           {this.renderInputToolbar()}
         </View>

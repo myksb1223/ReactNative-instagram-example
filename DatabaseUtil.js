@@ -39,3 +39,16 @@ export function heartStateUpdate(options = {}) {
 
   return options["data"];
 }
+
+export function insertComments(options = {}) {
+  db.transaction(
+    tx => {
+      tx.executeSql('INSERT INTO comments (user_id, content_id, content) values (?, ?, ?)', [global.currentUser["id"], options["data"]["id"], options["text"]]);
+      tx.executeSql('SELECT * FROM comments ORDER BY id DESC LIMIT 20', [], (_, { rows }) => {
+        alert(JSON.stringify(rows["_array"]))
+        // options["caller"].read()
+      });
+    },
+  );
+
+}
