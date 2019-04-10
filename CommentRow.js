@@ -7,6 +7,15 @@ export default class CommentRow extends React.Component {
 
   }
 
+  onTextPress(event, data) {
+    // alert("datas: !!!" + JSON.stringify(data));
+    this.goToProfile(data);
+  }
+
+  goToProfile(data) {
+    this.props.goToProfile(data);
+  }
+
   render() {
     let {height, width} = Dimensions.get('window');
     if(this.props.rowID === "0") {
@@ -30,11 +39,15 @@ export default class CommentRow extends React.Component {
       return(
         <View style={{flex: 1, flexDirection: 'column'}} >
           <View style={{flex: 1, flexDirection: 'row', margin: 10}} >
-            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', }}>
+            <TouchableOpacity style={{flex: 1, justifyContent: 'center', alignItems: 'center', }}
+              onPress={() => {
+                this.goToProfile(this.props.rowData);
+                }}>
               <Image source={{ uri: this.props.rowData.user_pic }} style={{ width: 35, height: 35, borderRadius: 17.5}}/>
-            </View>
+            </TouchableOpacity>
             <View style={{flex: 8, flexDirection: 'column', justifyContent: 'space-between',}}>
-              <Text style={{fontSize: 14, margin: 12, fontWeight: 'bold' }}>{this.props.rowData.user_name}
+              <Text style={{fontSize: 14, margin: 12,}}>
+                <Text style={{fontSize: 14, fontWeight: 'bold'}} onPress={(e) => this.onTextPress(e, this.props.rowData)}>{this.props.rowData.user_name}</Text>
                 <Text style={{fontSize: 14, fontWeight: 'normal'}}>{" " + this.props.rowData.content}</Text>
               </Text>
             </View>

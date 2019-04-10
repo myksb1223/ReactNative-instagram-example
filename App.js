@@ -102,6 +102,7 @@ const HomeStack = createStackNavigator({
     Create: { screen: CreateScreen },
     Camera: { screen: CameraScreen },
     Comment: { screen: CommentScreen},
+    UserProfile: { screen: ProfileScreen},
     /* add routes here where you want the drawer to be locked */
   });
 

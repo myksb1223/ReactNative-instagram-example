@@ -381,7 +381,8 @@ export default class CommentScreen extends React.Component {
             scrollEventThrottle={100}
             renderRow={(rowData, sectionID, rowID) =>
               <CommentRow
-                data= {this.state.data}                
+                goToProfile={(data) => this.props.navigation.navigate('UserProfile', { data: data })}
+                data= {this.state.data}
                 rowData= {rowData}
                 sectionID= {sectionID}
                 rowID= {rowID} />

@@ -50,9 +50,11 @@ export class ContentTopLayout extends React.Component {
             onPress={() => {
                   let data = DatabaseUtil.heartStateUpdate({
                   caller: this,
+                  user: global.currentUser,
                   data: this.props.data,
                   })
                   this.setState({data: data})
+                  global.homeScreen.setState({needReload: true})
               }
             }>
             <Image style={{width: 25, height: 25}}

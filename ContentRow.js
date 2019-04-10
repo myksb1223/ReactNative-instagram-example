@@ -49,6 +49,10 @@ export default class ContentRow extends React.Component {
     }
   }
 
+  onTextPress(event, rowData) {
+    this.props.goToProfile(rowData);
+  }
+
   render() {
     let {height, width} = Dimensions.get('window');
     return(
@@ -56,7 +60,7 @@ export default class ContentRow extends React.Component {
         <View style={{flex: 1, flexDirection: 'row', justifyContent: "center",alignItems: "center", marginBottom: 12}}>
           <Image source={global.currentUser !== null && this.props.rowData.user_id === global.currentUser["id"] ? { uri: global.currentUser["picture"]} : {uri: this.props.rowData.user_pic }}
             style={{ width: 36, height: 36, borderRadius: 18, marginRight: 12 }} />
-          <Text style={{flex: 1, textAlign: 'left', textAlignVertical: "center", fontSize: 14, fontWeight: "bold"}}>{global.currentUser !== null && this.props.rowData.user_id === global.currentUser["id"] ? global.currentUser.name : this.props.rowData.user_name}</Text>
+          <Text style={{flex: 1, textAlign: 'left', textAlignVertical: "center", fontSize: 14, fontWeight: "bold"}} onPress={(e) => this.onTextPress(e, this.props.rowData)}>{global.currentUser !== null && this.props.rowData.user_id === global.currentUser["id"] ? global.currentUser.name : this.props.rowData.user_name}</Text>
           {global.currentUser !== null && global.currentUser["id"] === this.props.rowData.user_id && <TouchableOpacity
             onPress={() => {
               KSBAlert.showAlert({
