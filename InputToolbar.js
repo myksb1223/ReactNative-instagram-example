@@ -60,7 +60,7 @@ export default class InputToolbar extends React.Component {
   }
 
   onSend(text) {
-    this.props.onSend(text);
+    this.props.onSend(text, true);
   }
 
   render() {

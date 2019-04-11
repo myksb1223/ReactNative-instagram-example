@@ -290,7 +290,7 @@ export default class HomeScreen extends React.Component {
                   id: data.user_id,
                 }).then(function (tableData) {
                     // resolve()의 결과 값이 여기로 전달됨
-                    alert(JSON.stringify(tableData))
+                    // alert(JSON.stringify(tableData))
                     this.props.navigation.navigate('UserProfile', { data: tableData })
                   }.bind(this))
 
@@ -299,6 +299,7 @@ export default class HomeScreen extends React.Component {
               heartPressed={(data) => {
                 DatabaseUtil.heartStateUpdate({
                 caller: this,
+                user: global.currentUser,
                 data: data,
                 })
                 this.setState({

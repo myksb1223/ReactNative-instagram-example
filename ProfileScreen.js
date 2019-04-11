@@ -348,22 +348,38 @@ export class ProfileHeaderTitle extends React.Component {
     super();
 
     this.state = { isPopUp: false, };
+    // alert("datas: " + JSON.stringify(this.props));
   }
 
   updatePopup(isPopUp) {
+    // alert("datas: " + JSON.stringify(this.props.onPopupView));
     this.setState({isPopUp: isPopUp});
     this.props.onPopupView(isPopUp);
   }
 
+  displayImage() {
+    if (this.props.state.currentUser.id === global.currentUser.id) {
+      if(!this.state.isPopUp) {
+        return <Image style={{width: 15, height: 15}} source={ require('./assets/drop_down.png')}/>;
+      }
+      else {
+        return <Image style={{width: 15, height: 15}} source={ require('./assets/drop_up.png')}/>;
+      }
+    } else {
+        return <View />;
+    }
+  }
   render() {
     return (
       <TouchableOpacity
         style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}
         onPress={() => {
-            this.updatePopup(!this.state.isPopUp)
+            if (this.props.state.currentUser.id === global.currentUser.id) {
+              this.updatePopup(!this.state.isPopUp)
+            }
           }}>
-          <Text style={{fontWeight: 'bold', fontSize: 16}}>{global.currentUser["name"]}</Text>
-          {!this.state.isPopUp ? <Image style={{width: 15, height: 15}} source={ require('./assets/drop_down.png')}/> : <Image style={{width: 15, height: 15}} source={ require('./assets/drop_up.png')}/>}
+          <Text style={{fontWeight: 'bold', fontSize: 16}}>{this.props.state.currentUser["name"]}</Text>
+          {this.displayImage()}
       </TouchableOpacity>
     );
   }
@@ -383,6 +399,7 @@ export default class ProfileScreen extends React.Component {
     return {
       // title: global.currentUser["name"],
       headerTitle: <ProfileHeaderTitle
+                    {...navigation}
                     ref={title => {
                       navigation.title = title;
                     }}
@@ -434,7 +451,9 @@ export default class ProfileScreen extends React.Component {
     else {
       this.currentUser = global.currentUser;
     }
-// alert("datas: " + JSON.stringify(this.currentUser));
+
+    this.props.navigation.state.currentUser = this.currentUser;
+// alert("datas: " + JSON.stringify(this.props));
     this.state = {
       dataSource: ds.cloneWithRows([""]),
       userDataSource: userDs.cloneWithRows(global.allUsers),
@@ -451,6 +470,7 @@ export default class ProfileScreen extends React.Component {
       mine: mine,
     };
     _this = this;
+
     this.props.navigation.setParams({
       updatePopup: this.updatePopup,
     });
@@ -460,6 +480,13 @@ export default class ProfileScreen extends React.Component {
     }
     this.rowOffsets = {}
     // alert("datas: " + JSON.stringify(global.allUsers));
+  }
+
+  componentWillUnmount() {
+    this.props.navigation.state.currentUser = global.currentUser;
+    this.currentUser = global.currentUser;
+    // 중요하다. can't call setstate (or forceupdate) on an unmounted component
+    _this = global.profileScreen;
   }
 
   read() {
@@ -531,14 +558,8 @@ export default class ProfileScreen extends React.Component {
             this.setState({ dataSource: this.state.dataSource.cloneWithRows(renderDatas), ready: true, needReload: false, moreCount: this.state.moreCount+1, map: map, list: _array})
           }
           else {
-            if(this.state.mine) {
-              map.unshift(global.currentUser)
-              _array.unshift(global.currentUser)
-            }
-            else {
-              map.unshift(this.data)
-              _array.unshift(this.data)
-            }
+            map.unshift(this.currentUser)
+            _array.unshift(this.currentUser)
 
             let renderDatas = undefined
             if(this.state.type === 0) {
@@ -556,7 +577,7 @@ export default class ProfileScreen extends React.Component {
             this.setState({ dataSource: this.state.dataSource.cloneWithRows(renderDatas), ready: true, needReload: false, refreshing: false, map: map, list: _array})
           }
 
-
+          // alert("read: " + JSON.stringify(global.contents["map"]));
           // global.homeScreen.setState({needReload: true});
             // alert("datas: " + JSON.stringify(map[1].length));
             // alert(JSON.stringify(_array))
@@ -580,7 +601,7 @@ export default class ProfileScreen extends React.Component {
     //
     if(this.state.mine) {
       if(global.contents["map"] != null && global.contents["list"] != null) {
-        // alert("componentWillReceiveProps: " + JSON.stringify(global.contents["map"]));
+        alert("componentWillReceiveProps: " + JSON.stringify(global.contents["map"]));
 
         global.contents["map"].splice(0, 1, global.currentUser);
         global.contents["list"].splice(0, 1, global.currentUser);
@@ -751,7 +772,7 @@ export default class ProfileScreen extends React.Component {
                 global.homeScreen.setState({needReload: true})
               }}
               goToEdit={(id, type) => this.goToEdit(id, type)}
-              goToContentScreen={(data) => this.props.navigation.navigate('Content', { data: data })}
+              goToContentScreen={(data) => this.props.navigation.navigate('Content', { data: data, user: this.currentUser })}
               moveToFirst={() => this.scrollToRow(1)}
               sendOffset={(y, rowID) => this.onRowLayout(y, rowID)}
               rowData={rowData}

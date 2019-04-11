@@ -19,17 +19,19 @@ export class ContentTopLayout extends React.Component {
     return(
       <View style={{flex: 1, flexDirection: 'column'}}>
         <View style={{flex: 1, flexDirection: 'row', justifyContent: "center", alignItems: "center", marginBottom: 12}}>
-          <Image source={{ uri: global.currentUser["picture"], cache: 'force-cache',}}
+          <Image source={{ uri: this.props.caller.currentUser["picture"], cache: 'force-cache',}}
             style={{ width: 36, height: 36, borderRadius: 18, marginRight: 12 }} />
-          <Text style={{flex: 1, textAlign: 'left', textAlignVertical: "center", fontSize: 14, fontWeight: "bold"}}>{global.currentUser.name}</Text>
+          <Text style={{flex: 1, textAlign: 'left', textAlignVertical: "center", fontSize: 14, fontWeight: "bold"}}>{this.props.caller.currentUser.name}</Text>
           <TouchableOpacity
             onPress={() => {
-              KSBAlert.showAlert({
-                caller: this.props.caller,
-                menus: ['취소', '수정', '삭제'],
-                type: 1,
-                other: 0,
-                })
+              if(this.props.caller.currentUser === global.currentUser.id) {
+                KSBAlert.showAlert({
+                  caller: this.props.caller,
+                  menus: ['취소', '수정', '삭제'],
+                  type: 1,
+                  other: 0,
+                  })
+                }
               }
             }>
             <Image style={{width: 25, height: 25}}
@@ -87,7 +89,7 @@ export class ContentTopLayout extends React.Component {
   }
 }
 
-export default class CreateScreen extends React.Component {
+export default class ContentScreen extends React.Component {
   static navigationOptions = ({navigation}) => {
     const {params = {}} = navigation.state;
     return {
@@ -109,6 +111,11 @@ export default class CreateScreen extends React.Component {
     super(props);
 
     let data = this.props.navigation.getParam("data", null);
+    let user = this.props.navigation.getParam("user", null);
+    if(user !== null) {
+      this.currentUser = user;
+    }
+    // alert("datas: " + JSON.stringify(this.currentUser));
     for(var k in global.contents["likes"]) {
       if(global.contents["likes"][k]["content_id"] === data["id"]) {
         data["like"] = global.contents["likes"][k]["is_like"];

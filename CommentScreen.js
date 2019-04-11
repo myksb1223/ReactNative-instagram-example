@@ -156,6 +156,13 @@ export default class CommentScreen extends React.Component {
     this.setIsTypingDisabled(false);
   }
 
+  // scrollToBottom(animated = true) {
+  //   if (this._messageContainerRef === null) {
+  //     return;
+  //   }
+  //   this._messageContainerRef.scrollTo({ y: 0, animated });
+  // }
+
   setBottomOffset(value) {
     this._bottomOffset = value;
   }
@@ -206,6 +213,20 @@ export default class CommentScreen extends React.Component {
    */
   getMessagesContainerHeightWithKeyboard(composerHeight = this.state.composerHeight) {
     return this.getBasicMessagesContainerHeight(composerHeight) - this.getKeyboardHeight() + this.getBottomOffset();
+  }
+
+  resetInputToolbar() {
+    if (this.textInput) {
+      this.textInput.clear();
+    }
+    this.notifyInputTextReset();
+    const newComposerHeight = this.props.minComposerHeight;
+    const newMessagesContainerHeight = this.getMessagesContainerHeightWithKeyboard(newComposerHeight);
+    this.setState({
+      text: this.getTextFromProp(''),
+      composerHeight: newComposerHeight,
+      messagesContainerHeight: this.prepareMessagesContainerHeight(newMessagesContainerHeight),
+    });
   }
 
   onInputSizeChanged(size) {
@@ -285,13 +306,27 @@ export default class CommentScreen extends React.Component {
     }
   }
 
-  onSend(text) {
-    // alert(JSON.stringify(this.state.))
+  onSend(message, shouldResetInputToolbar = false) {
+    if (shouldResetInputToolbar === true) {
+      this.setIsTypingDisabled(true);
+      this.resetInputToolbar();
+    }
+
+    this.props.onSend(message);
+    // this.scrollToBottom();
+
+    if (shouldResetInputToolbar === true) {
+      setTimeout(() => {
+        // if (this.getIsMounted() === true) {
+          this.setIsTypingDisabled(false);
+        // }
+      }, 100);
+    }
 
     DatabaseUtil.insertComments({
       caller: this,
       data: this.state.data,
-      text: text,
+      text: message,
     })
   }
 
@@ -381,7 +416,16 @@ export default class CommentScreen extends React.Component {
             scrollEventThrottle={100}
             renderRow={(rowData, sectionID, rowID) =>
               <CommentRow
-                goToProfile={(data) => this.props.navigation.navigate('UserProfile', { data: data })}
+                goToProfile={(data) => {
+                  DatabaseUtil.readSelectedUser({
+                    id: data.user_id,
+                  }).then(function (tableData) {
+                      // resolve()의 결과 값이 여기로 전달됨
+                      // alert(JSON.stringify(tableData))
+                      this.props.navigation.navigate('UserProfile', { data: tableData })
+                    }.bind(this))
+                  }
+                }
                 data= {this.state.data}
                 rowData= {rowData}
                 sectionID= {sectionID}
