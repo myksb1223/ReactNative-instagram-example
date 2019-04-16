@@ -358,7 +358,7 @@ export class ProfileHeaderTitle extends React.Component {
   }
 
   displayImage() {
-    if (this.props.state.currentUser.id === global.currentUser.id) {
+    if (this.props.state.currentUser.id === global.currentUser.id && this.props.routeName === "Profile") {
       if(!this.state.isPopUp) {
         return <Image style={{width: 15, height: 15}} source={ require('./assets/drop_down.png')}/>;
       }
@@ -374,7 +374,7 @@ export class ProfileHeaderTitle extends React.Component {
       <TouchableOpacity
         style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}
         onPress={() => {
-            if (this.props.state.currentUser.id === global.currentUser.id) {
+            if (this.props.state.currentUser.id === global.currentUser.id && this.props.routeName === "Profile") {
               this.updatePopup(!this.state.isPopUp)
             }
           }}>
@@ -393,6 +393,20 @@ const scrollOffset = y => ({
   animated: true
 })
 
+const initialState = {
+  popUp: false,
+  ready: false,
+  type: 0,
+  needReload: false,
+  needReloadOnlyProfile: false,
+  refreshing: false,
+  isLoadingMore: false,
+  moreCount: 0,
+  map: null,
+  list: null,
+  mine: true,
+};
+
 export default class ProfileScreen extends React.Component {
   static navigationOptions = ({navigation}) => {
     const {params = {}} = navigation.state;
@@ -403,6 +417,7 @@ export default class ProfileScreen extends React.Component {
                     ref={title => {
                       navigation.title = title;
                     }}
+                    routeName={navigation.state.routeName}
                     onPopupView={params.updatePopup}/>,
       headerTitleStyle: {textAlign:'center', alignSelf:'center',flex:1},
       // headerRight: (
@@ -453,7 +468,7 @@ export default class ProfileScreen extends React.Component {
     }
 
     this.props.navigation.state.currentUser = this.currentUser;
-// alert("datas: " + JSON.stringify(this.props));
+// alert("datas: " + JSON.stringify(this.props.navigation.state.routeName));
     this.state = {
       dataSource: ds.cloneWithRows([""]),
       userDataSource: userDs.cloneWithRows(global.allUsers),
@@ -726,7 +741,7 @@ export default class ProfileScreen extends React.Component {
         datas = this.state.list
       }
 
-      if(datas.length >= 18*(this.state.moreCount+1)) {
+      if(datas != null && datas.length >= 18*(this.state.moreCount+1)) {
         // alert("fetchMore")
         this.read();
       }
@@ -814,12 +829,33 @@ export default class ProfileScreen extends React.Component {
               dataSource={this.state.userDataSource}
               renderRow={(rowData, sectionID, rowID) =>
                 <View style={{flex: 1, backgroundColor: 'white', flexDirection: 'row', }}>
-                  <View style={{flex: 1, backgroundColor: 'white', flexDirection: 'row', margin: 10}}>
-                    <Image source={rowData["id"] === this.currentUser.id ? { uri: this.currentUser["picture"] } : { uri: rowData["picture"] }} style={{width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: 'black'}}/>
-                    <View style={{flex: 1, justifyContent: 'center', marginLeft: 10}}>
-                      <Text style={{fontWeight: 'bold'}}>{rowData["name"]}</Text>
+                  <TouchableOpacity
+                    style={{flex: 1, backgroundColor: 'white', flexDirection: 'row', }}
+                    onPress={() => {
+                      DatabaseUtil.readAllDataForReset({
+                        id: global.currentUser.id,
+                        selected_id: rowData.id,
+                      }).then(function (tableData) {
+                          // resolve()의 결과 값이 여기로 전달됨
+                          alert(JSON.stringify(global.currentUser))
+                          this.currentUser = global.currentUser;
+                          this.props.navigation.state.currentUser = global.currentUser;
+                          _this.props.navigation.title.updatePopup(false)
+                          // navigationOptions
+                          this.setState(initialState);
+                          this.read()
+                          global.homeScreen.setState({needReload: true});
+                          // this.props.navigation.navigate('UserProfile', { data: tableData })
+                        }.bind(this))
+
+                    }}>
+                    <View style={{flex: 1, backgroundColor: 'white', flexDirection: 'row', margin: 10}}>
+                      <Image source={rowData["id"] === this.currentUser.id ? { uri: this.currentUser["picture"] } : { uri: rowData["picture"] }} style={{width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: 'black'}}/>
+                      <View style={{flex: 1, justifyContent: 'center', marginLeft: 10}}>
+                        <Text style={{fontWeight: 'bold'}}>{rowData["name"]}</Text>
+                      </View>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 </View>
               }
               enableEmptySections

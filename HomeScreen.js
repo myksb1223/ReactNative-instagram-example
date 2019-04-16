@@ -62,8 +62,11 @@ export default class HomeScreen extends React.Component {
   }
 
   componentDidMount() {
-    this.firstRead();
-    this.read();
+    DatabaseUtil.firstRead().then(function(tableData){
+      this.read();
+    }.bind(this));
+    // this.firstRead();
+    // this.read();
   }
 
   componentWillReceiveProps(nextProps){
@@ -96,37 +99,37 @@ export default class HomeScreen extends React.Component {
     return this.state !== nextState;
   }
 
-  firstRead() {
-    db.transaction(
-      tx => {
-        tx.executeSql('SELECT * FROM users', [], (_, { rows: { _array } }) => {
-          // setTimeout(() =>  {
-            for(var i in _array) {
-              if(1 === _array[i]["current"]) {
-                global.currentUser = _array[i]
-                break
-              }
-            }
-
-            global.allUsers = _array
-            // global.selectedPath = selectedPath;
-            // alert(JSON.stringify(_array))
-            if(global.currentUser !== null && global.currentUser["picture"] != null) {
-              global.container.setState({ selectedPath: global.currentUser["picture"] })
-            }
-          // }, 3000)}
-
-          tx.executeSql('SELECT * FROM content_likes WHERE user_id = ?', [global.currentUser["id"]], (_, { rows: { _array } }) => {
-            // alert("second : " + JSON.stringify(_array))
-              global.contents["likes"] = _array
-              // alert(JSON.stringify(global.contents["likes"]))
-            }
-          );
-        }
-
-        );
-    });
-  }
+  // firstRead() {
+  //   db.transaction(
+  //     tx => {
+  //       tx.executeSql('SELECT * FROM users', [], (_, { rows: { _array } }) => {
+  //         // setTimeout(() =>  {
+  //           for(var i in _array) {
+  //             if(1 === _array[i]["current"]) {
+  //               global.currentUser = _array[i]
+  //               break
+  //             }
+  //           }
+  //
+  //           global.allUsers = _array
+  //           // global.selectedPath = selectedPath;
+  //           // alert(JSON.stringify(_array))
+  //           if(global.currentUser !== null && global.currentUser["picture"] != null) {
+  //             global.container.setState({ selectedPath: global.currentUser["picture"] })
+  //           }
+  //         // }, 3000)}
+  //
+  //         tx.executeSql('SELECT * FROM content_likes WHERE user_id = ?', [global.currentUser["id"]], (_, { rows: { _array } }) => {
+  //           // alert("second : " + JSON.stringify(_array))
+  //             global.contents["likes"] = _array
+  //             // alert(JSON.stringify(global.contents["likes"]))
+  //           }
+  //         );
+  //       }
+  //
+  //       );
+  //   });
+  // }
 
   read() {
     db.transaction(

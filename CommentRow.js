@@ -22,7 +22,7 @@ export default class CommentRow extends React.Component {
       return(
         <View style={{flex: 1, flexDirection: 'column'}} >
           <View style={{flex: 1, flexDirection: 'row', margin: 10}} >
-            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', }}>
+            <View style={{flex: 1, alignItems: 'center', marginTop: 12,}}>
               <Image source={{ uri: this.props.data.user_pic }} style={{ width: 35, height: 35, borderRadius: 17.5}}/>
             </View>
             <View style={{flex: 8, flexDirection: 'column', justifyContent: 'space-between',}}>
@@ -39,7 +39,7 @@ export default class CommentRow extends React.Component {
       return(
         <View style={{flex: 1, flexDirection: 'column'}} >
           <View style={{flex: 1, flexDirection: 'row', margin: 10}} >
-            <TouchableOpacity style={{flex: 1, justifyContent: 'center', alignItems: 'center', }}
+            <TouchableOpacity style={{flex: 1, alignItems: 'center', marginTop: 12 }}
               onPress={() => {
                 this.goToProfile(this.props.rowData);
                 }}>
