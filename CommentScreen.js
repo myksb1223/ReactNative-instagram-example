@@ -180,16 +180,18 @@ export default class CommentScreen extends React.Component {
   }
 
   setKeyboardHeight(height) {
+    alert("keyboard : " + height)
     this._keyboardHeight = height;
   }
 
   getKeyboardHeight() {
-    if (Platform.OS === 'android' && !this.props.forceGetKeyboardHeight) {
-      // For android: on-screen keyboard resized main container and has own height.
-      // @see https://developer.android.com/training/keyboard-input/visibility.html
-      // So for calculate the messages container height ignore keyboard height.
-      return 0;
-    }
+    // 아래 부분은 expo에서 적용시 InputToolbar가 올라오지 않는다.
+    // if (Platform.OS === 'android' && !this.props.forceGetKeyboardHeight) {
+    //   // For android: on-screen keyboard resized main container and has own height.
+    //   // @see https://developer.android.com/training/keyboard-input/visibility.html
+    //   // So for calculate the messages container height ignore keyboard height.
+    //   return 0;
+    // }
     return this._keyboardHeight;
   }
 

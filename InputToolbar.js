@@ -11,16 +11,25 @@ export default class InputToolbar extends React.Component {
 
     this.keyboardWillShow = this.keyboardWillShow.bind(this);
     this.keyboardWillHide = this.keyboardWillHide.bind(this);
+
+    this.keyboardDidShow = this.keyboardDidShow.bind(this);
+    this.keyboardDidHide = this.keyboardDidHide.bind(this);
   }
 
   componentWillMount() {
     this.keyboardWillShowListener = Keyboard.addListener('keyboardWillShow', this.keyboardWillShow);
     this.keyboardWillHideListener = Keyboard.addListener('keyboardWillHide', this.keyboardWillHide);
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this.keyboardDidShow);
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this.keyboardDidHide);
+
   }
 
   componentWillUnmount() {
     this.keyboardWillShowListener.remove();
     this.keyboardWillHideListener.remove();
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
+
   }
 
   keyboardWillShow() {
@@ -32,6 +41,22 @@ export default class InputToolbar extends React.Component {
   }
 
   keyboardWillHide() {
+    if (this.state.position !== 'absolute') {
+      this.setState({
+        position: 'absolute',
+      });
+    }
+  }
+
+  keyboardDidShow() {
+    if (this.state.position !== 'relative') {
+      this.setState({
+        position: 'relative',
+      });
+    }
+  }
+
+  keyboardDidHide() {
     if (this.state.position !== 'absolute') {
       this.setState({
         position: 'absolute',
